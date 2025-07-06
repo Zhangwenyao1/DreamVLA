@@ -1,0 +1,16 @@
+flamingo_pytorch
+tensorboard
+ftfy==6.2.0
+regex
+tqdm
+matplotlib
+git+https://github.com/openai/CLIP.git
+timm==0.9.16
+h5py==3.11.0
+transformers==4.40.2
+packaging==24.0
+setuptools==57.5.0
+omegaconf==2.1.2
+moviepy==1.0.3
+einops_exts
+numpy==1.23.1
