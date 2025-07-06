@@ -2,7 +2,7 @@
 DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 <!-- </div> -->
 
-# DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge
+# DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge
 
 [Wenyao Zhang](https://zhangwenyao1.github.io/)\*, [Hongsi Liu](https://ericliuhhh.github.io/)\*, [Zekun Qi](https://qizekun.github.io/)\*, [Yunnan Wang](https://wangyunnan.github.io/)\*, [Xinqiang Yu](), [Jiazhao Zhang](https://jzhzhang.github.io/), [Runpei Dong](https://runpeidong.web.illinois.edu/), [Jiawei He](https://jiaweihe.com/), [Zhizheng Zhang](https://scholar.google.com/citations?user=X7M0I8kAAAAJ&hl=en), [He Wang](https://hughw19.github.io/) and [Li Yi](https://ericyi.github.io/), [Wenjun Zeng](http://home.ustc.edu.cn/~jinxustc/), [Xin Jin](http://home.ustc.edu.cn/~jinxustc/).
 
