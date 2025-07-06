@@ -52,5 +52,6 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train
     --flow_as_mask \
     --attn_implementation "sdpa" \
     --reset_obs_token \
+    --reset_action_decoder \
     --report_to_wandb \
     --finetune_from_pretrained_ckpt ${finetune_from_pretrained_ckpt} \
