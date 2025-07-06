@@ -996,7 +996,6 @@ class DiskCalvinDataset(BaseCalvinDataset):
         
     # def __getstate__(self):
     #     state = self.__dict__.copy()
-    #     # 不传递 env 到子进程
     #     state['dino_static_env'] = None
     #     state['dino_gripper_env'] = None
     #     return state
@@ -1335,7 +1334,6 @@ class DiskCalvinDataset(BaseCalvinDataset):
         # ).item()
         lang_data = np.load(
             # abs_datasets_dir / self.lang_folder / "auto_lang_ann.npy",
-            # "/code/DreamVLA_robovlm/data/calvin/task_ABC_D/training/lang_annotations/auto_lang_ann.npy",
             "data_info/auto_lang_ann.npy",
             allow_pickle=True,
         ).item()
@@ -3410,34 +3408,18 @@ def get_oxe_dataset(args, image_processor, tokenizer, epoch=0, floor=False):
 
 
 def depth_image_fn(depth_images, normalize=True, max_depth=10.0, to_tensor=True):
-    """
-    处理深度图像数据的函数。
-
-    参数:
-    - depth_images: 一个包含深度图像的 PIL 图像列表。
-    - normalize: 是否对深度图像进行归一化，默认为 True。
-    - max_depth: 归一化时使用的最大深度值，默认为 10.0。
-    - to_tensor: 是否将处理后的图像转换为 PyTorch 张量，默认为 True。
-
-    返回:
-    - 处理后的深度图像张量或 NumPy 数组。
-    """
-    # 将 PIL 图像列表转换为 NumPy 数组
-    np_depth = np.stack([np.array(img, dtype=np.float32) for img in depth_images])
     
-    # 检查深度图像的形状
+    np_depth = np.stack([np.array(img, dtype=np.float32) for img in depth_images])
     if len(np_depth.shape) != 3:
         raise ValueError("Depth images should have shape (N, H, W)")
     eps = 1e-6
     # np_depth_norm = (np_depth - np_depth.min(axis=(1,2), keepdims=True)) / (np_depth.max(axis=(1,2), keepdims=True) - np_depth.min(axis=(1,2), keepdims=True) + eps)
     np_depth_norm = np_depth
-    # 转为 torch.Tensor 并 resize
     depth_tensor = torch.from_numpy(np_depth_norm).unsqueeze(1)  # (N, 1, H, W)
 
     resize = T.Resize((224, 224), interpolation=T.InterpolationMode.NEAREST)
     depth_tensor_resized = torch.stack([resize(d) for d in depth_tensor])  
     # for img in np_depth])
-    # 转换为张量
     if to_tensor:
         # depth_tensors = torch.from_numpy(resized_depth).unsqueeze(1)# 调整维度顺序为 (N, C, H, W)
         return depth_tensor_resized
