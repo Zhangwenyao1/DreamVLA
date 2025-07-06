@@ -49,7 +49,7 @@ class CalvinDataset(Dataset):
             ep_start_end_ids = np.load(Path(data_root) / "except_lang_idx" / "except_lang_idx.npy").tolist()
             self.lang['info']['indx'] = ep_start_end_ids
 
-        # self.all_files = glob.glob(os.path.join(data_root, 'episode_*.npz')) # 会比真正用到的要多很多
+        # self.all_files = glob.glob(os.path.join(data_root, 'episode_*.npz'))
         _temp = []
         for item in self.lang['info']['indx']:
             _temp.extend(list(range(item[0], item[1]+1)))
