@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export GIT_PYTHON_REFRESH=quiet
-calvin_dataset_path=your_dataset_path # your path/to/CALVIN_dataset
+calvin_dataset_path=/mnt/afs/chenxuchuan/datasets/calvin/task_ABC_D # your path/to/CALVIN_dataset
 calvin_conf_path="calvin/calvin_models/conf"
 vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth"
 save_checkpoint_path="checkpoints/"
@@ -61,6 +61,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10219 eval_
     --depth_pred \
     --sam_feat_pred \
     --pred_num 1 \
+    --use_dit_head \
     --resume_from_checkpoint ${resume_from_checkpoint} \
     | tee "${log_file}"
 
