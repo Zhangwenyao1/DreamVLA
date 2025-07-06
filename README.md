@@ -63,16 +63,18 @@ This repository's code is based on the [Seer](https://github.com/OpenRobotLab/Se
 # Data Processing
 
 ### Dynamic Region:  
-Install [Co-tracker](https://github.com/facebookresearch/co-tracker.git)
+Install [co-tracker](https://github.com/facebookresearch/co-tracker.git)
 ```
-mv ./data_process/cotrack_extractor.py ./Co-tracker/
+mv ./data_process/cotrack_extractor.py ./co-tracker/
+cd co-tracker
 python cotrack_extractor.py
 ```
 
 ### SAM Feature: 
 Install [SAM](https://github.com/facebookresearch/segment-anything)
 ```
-mv ./data_process/cotrack_extractor.py ./SAM
+mv ./data_process/sam_extractor.py ./segment-anything/
+cd segment-anything
 python sam_extractor.py
 ```
 
@@ -80,14 +82,15 @@ python sam_extractor.py
 
 Install [DINOV2](https://github.com/facebookresearch/dinov2)
 ```
-mv ./data_process/sam_extractor.py ./SAM
+mv ./data_process/dino_extractor.py ./dinov2/
+cd dinov2
 python dino_extractor.py
 ```
 
 Merge all data and raw calvin dataset to produce the new dataset
 ```
-python ./merge_calvin_dino.py
-python ./merge_traj.py
+python ./data_process/merge_sam_dino.py # merge sam and dino feature into new dataset
+python ./data_process/merge_track.py # merge optical flow into new dataset
 ```
 
 
