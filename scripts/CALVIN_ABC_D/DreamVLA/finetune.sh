@@ -1,6 +1,6 @@
-finetune_from_pretrained_ckpt="/mnt/afs/wyzhang/code/DreamVLA-seer/Seer_Large_ptbs512_24layers_16heads_hd1024-PT-ep5.pth"
+finetune_from_pretrained_ckpt="pretrian_weight_path"
 calvin_dataset_path="/mnt/afs/chenxuchuan/datasets/calvin/task_ABC_D/"
-save_checkpoint_path="./checkpoints/fine_tune_dreamvla_flow_as_mask_depth_sdpa_q4/"
+save_checkpoint_path="./checkpoints/"
 vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 
 node=1
@@ -25,7 +25,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train
     --wandb_project seer \
     --weight_decay 1e-4 \
     --num_resampler_query 16 \
-    --num_obs_token_per_image 4 \
+    --num_obs_token_per_image 9 \
     --run_name finetune_dreamvla_calvin_abc_d_flow_as_mask_depth \
     --save_checkpoint \
     --save_checkpoint_path ${save_checkpoint_path} \
@@ -42,22 +42,15 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train
     --use_dit_head \
     --track_label_patch_size 8 \
     --load_track_labels \
-    --track_label_path "/mnt/afs/wyzhang/code/DreamVLA_robovlm/co-tracker/calvin_dense_k10/task_ABC_D/" \
     --loss_image \
     --loss_action \
     --loss_depth \
-    --loss_dino_feat \
     --loss_sam_feat \
-    --dino_feat_pred \
     --load_dino_features \
-    --dino_features_path "/mnt/afs/wyzhang/code/dinov2/calvin_dino/task_ABC_D" \
     --sam_feat_pred \
     --load_sam_features \
-    --sam_features_path "/mnt/afs/wyzhang/code/segment-anything/calvin_sam/task_ABC_D" \
     --flow_as_mask \
     --attn_implementation "sdpa" \
-    --reset_mask_token \
     --reset_obs_token \
-    --reset_image_decoder \
     --report_to_wandb \
     --finetune_from_pretrained_ckpt ${finetune_from_pretrained_ckpt} \

@@ -10,7 +10,7 @@ node=1
 node_num=8
 
 
-resume_from_checkpoint=your_checkpoint_path # e.g., checkpoints/finetune_dreamvla.pth
+resume_from_checkpoint=/mnt/afs/wyzhang/code/DreamVLA-seer/checkpoints/fine_tune_dreamvla_fourfeat_q9/q9_finetune_dreamvla_fourfeat/11.pth # e.g., checkpoints/finetune_dreamvla.pth
 
 IFS='/' read -ra path_parts <<< "$resume_from_checkpoint"
 run_name="${path_parts[-3]}/${path_parts[-2]}"
