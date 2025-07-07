@@ -124,10 +124,27 @@ We would like to express our deepest gratitude to [Yang Tian](https://scholar.go
 If you find our ideas / environments helpful, please cite our work at
 
 ```
-·@article{qi2025sofar,
-  author = {Qi, Zekun and Zhang, Wenyao and Ding, Yufei and Dong, Runpei and Yu, Xinqiang and Li, Jingwen and Xu, Lingyun and Li, Baoyu and He, Xialin and Fan, Guofan and Zhang, Jiazhao and He, Jiawei and Gu, Jiayuan and Jin, Xin and Ma, Kaisheng and Zhang, Zhizheng and Wang, He and Yi, Li},
-  title = {SoFar: Language-Grounded Orientation Bridges Spatial Reasoning and Object Manipulation},
-  journal = {arXiv preprint arXiv:2502.13143},
-  year = {2025}
-}
-```# DreamVLA
+article{dreamvla25,
+          author = {Wenyao Zhang and
+                    Hongsi Liu and
+                    Zekun Qi and
+                    Yunan Wang and
+                    Xinqiang Yu and
+                    Jiazhao Zhang and
+                    Runpei Dong and
+                    Jiawei He and
+                    He Wang and
+                    Zhizheng Zhang and
+                    Li Yi and 
+                    Wenjun Zeng and
+                    Xin Jin},
+          title        = {DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge},
+          journal      = {CoRR},
+          volume       = {abs/2507.13143},
+          year         = {2025},
+          url          = {https://doi.org/10.48550/arXiv.2502.13143},
+          doi          = {10.48550/ARXIV.2502.13143},
+          eprinttype    = {arXiv},
+          eprint       = {2507.13143}
+        }
+```
