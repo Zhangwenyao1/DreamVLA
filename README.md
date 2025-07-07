@@ -13,7 +13,7 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 [![Data License](https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg)](https://github.com/tatsu-lab/stanford_alpaca/blob/main/DATA_LICENSE)
 
 
-## The difference from previous worls
+## The difference from previous works
 <div style="text-align: center;">
     <img src="assets/paradigm_compare.gif" width=100% >
 </div>
