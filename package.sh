@@ -1,1 +1,0 @@
-tar -cf DreamVLA_seer.tar calvin data_info docs models real_controller real_preprocess scripts utils *.py *.sh pyrightconfig.json .gitignore *.md requirements.txt
