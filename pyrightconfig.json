@@ -1,0 +1,11 @@
+{
+    "exclude": [
+        "calvin",
+        "calvin_1",
+        "CLIP",
+        "wandb",
+        "calvin_datasets",
+        "calvin_datasets_with_dinosam",
+        "calvin_datasets_mergedall"
+    ]
+}

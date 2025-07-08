@@ -117,7 +117,7 @@ bash ./scripts/CALVIN_ABC_D/DreamVLA/eval.sh
 
 ## Acknowledgement
 
-We would like to express our deepest gratitude to [Yang Tian](https://scholar.google.com/citations?user=leXXHKwAAAAJ&hl=zh-CN) for the technique !!!
+We would like to express our deepest gratitude to [Yang Tian](https://scholar.google.com/citations?user=leXXHKwAAAAJ&hl=zh-CN) for the technique support!!!
 
 ## Citation
 
