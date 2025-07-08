@@ -6,9 +6,9 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 
 [Wenyao Zhang](https://zhangwenyao1.github.io/)\*, [Hongsi Liu](https://ericliuhhh.github.io/)\*, [Zekun Qi](https://qizekun.github.io/)\*, [Yunnan Wang](https://wangyunnan.github.io/)\*, [Xinqiang Yu](), [Jiazhao Zhang](https://jzhzhang.github.io/), [Runpei Dong](https://runpeidong.web.illinois.edu/), [Jiawei He](https://jiaweihe.com/), [Zhizheng Zhang](https://scholar.google.com/citations?user=X7M0I8kAAAAJ&hl=en), [He Wang](https://hughw19.github.io/) and [Li Yi](https://ericyi.github.io/), [Wenjun Zeng](https://www.eitech.edu.cn/?p=leader-Wenjun%20Zeng&tid=19&lang=en), [Xin Jin](http://home.ustc.edu.cn/~jinxustc/).
 
-[![Paper PDF](https://img.shields.io/badge/Paper-PDF-orange.svg)](https://arxiv.org/abs/2502.13143)
-[![Project Page](https://img.shields.io/badge/Project-Page-Green.svg)](https://qizekun.github.io/omnispatial/)
-[![Hugging Face](https://img.shields.io/badge/🤗-Hugging_Face-yellow.svg)](https://huggingface.co/datasets/qizekun/OmniSpatial)
+[![Paper PDF](https://img.shields.io/badge/Paper-PDF-orange.svg)](https://arxiv.org/abs/2507.04447)
+[![Project Page](https://img.shields.io/badge/Project-Page-Green.svg)](https://zhangwenyao1.github.io/DreamVLA)
+[![Hugging Face](https://img.shields.io/badge/🤗-Hugging_Face-yellow.svg)](https://huggingface.co/WenyaoZhang/DreamVLA)
 [![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-green.svg)](https://github.com/tatsu-lab/stanford_alpaca/blob/main/LICENSE)
 [![Data License](https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg)](https://github.com/tatsu-lab/stanford_alpaca/blob/main/DATA_LICENSE)
 
@@ -140,11 +140,11 @@ article{dreamvla25,
                     Xin Jin},
           title        = {DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge},
           journal      = {CoRR},
-          volume       = {abs/2507.13143},
+          volume       = {abs/2507.04447},
           year         = {2025},
-          url          = {https://doi.org/10.48550/arXiv.2502.13143},
-          doi          = {10.48550/ARXIV.2502.13143},
+          url          = {https://doi.org/10.48550/arXiv.2507.04447},
+          doi          = {10.48550/ARXIV.2507.04447},
           eprinttype    = {arXiv},
-          eprint       = {2507.13143}
+          eprint       = {2507.04447}
         }
 ```
