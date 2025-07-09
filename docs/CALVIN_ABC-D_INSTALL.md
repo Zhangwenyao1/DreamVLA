@@ -37,5 +37,6 @@ ln -s $CALVIN_ROOT calvin
 
 **(6) Copy the index file `except_lang_idx.npy` to the CALVIN ABC-D training data directory.**
 ```python
+cp -r data_info/auto_lang_ann.npy calvin/dataset/task_ABC_D/training
 cp -r data_info/except_lang_idx/except_lang_idx.npy calvin/dataset/task_ABC_D/training
 ```
