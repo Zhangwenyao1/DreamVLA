@@ -63,15 +63,15 @@ This repository's code is based on the [Seer](https://github.com/OpenRobotLab/Se
 # Data Processing
 
 ### Dynamic Region:  
-Install [co-tracker](https://github.com/facebookresearch/co-tracker.git).  Note download the [checkpoints of dinov2](https://huggingface.co/facebook/cotracker3/blob/main/scaled_offline.pth) and put it to ```co-tracker/checkpoints```
-```
+Install [co-tracker](https://github.com/facebookresearch/co-tracker.git). Note download the [checkpoints of co-tracker](https://huggingface.co/facebook/cotracker3/blob/main/scaled_offline.pth) and put it to ```./co-tracker/checkpoints```
+```.
 mv ./data_process/cotrack_extractor.py ./co-tracker/
 cd co-tracker
 python cotrack_extractor.py
 ```
 
 ### SAM Feature: 
-Install [SAM](https://github.com/facebookresearch/segment-anything)
+Install [SAM](https://github.com/facebookresearch/segment-anything). Note download the [checkpoints of SAM](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) and put it to ```./segment-anything/ckpts```.
 ```
 mv ./data_process/sam_extractor.py ./segment-anything/
 cd segment-anything
