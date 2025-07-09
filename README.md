@@ -63,7 +63,7 @@ This repository's code is based on the [Seer](https://github.com/OpenRobotLab/Se
 # Data Processing
 
 ### Dynamic Region:  
-Install [co-tracker](https://github.com/facebookresearch/co-tracker.git)
+Install [co-tracker](https://github.com/facebookresearch/co-tracker.git).  Note download the [checkpoints of dinov2](https://huggingface.co/facebook/cotracker3/blob/main/scaled_offline.pth) and put it to ```co-tracker/checkpoints```
 ```
 mv ./data_process/cotrack_extractor.py ./co-tracker/
 cd co-tracker
