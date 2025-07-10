@@ -3,7 +3,7 @@
 export GIT_PYTHON_REFRESH=quiet
 calvin_dataset_path= # your path/to/CALVIN_dataset
 calvin_conf_path="calvin/calvin_models/conf"
-vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth"
+vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 save_checkpoint_path="checkpoints/"
 
 node=1
