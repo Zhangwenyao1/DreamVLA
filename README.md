@@ -114,7 +114,7 @@ bash ./scripts/CALVIN_ABC_D/DreamVLA/finetune.sh
 
 # Evaluation
 
-Down load our [checkpoint](https://drive.google.com/drive/folders/1P1fA2vTUF-lsrrWyNvDSWE1ATTHbQQ9T?usp=drive_link)
+Down load our [checkpoint](https://drive.google.com/drive/folders/1P1fA2vTUF-lsrrWyNvDSWE1ATTHbQQ9T?usp=drive_link) and create ```checkpoints/```. Then put it into the file.
 ```
 bash ./scripts/CALVIN_ABC_D/DreamVLA/eval.sh
 ```
