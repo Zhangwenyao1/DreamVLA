@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export GIT_PYTHON_REFRESH=quiet
-calvin_dataset_path=/mnt/afs/chenxuchuan/datasets/calvin/task_ABC_D # your path/to/CALVIN_dataset
+calvin_dataset_path= # your path/to/CALVIN_dataset
 calvin_conf_path="calvin/calvin_models/conf"
 vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth"
 save_checkpoint_path="checkpoints/"
@@ -10,7 +10,7 @@ node=1
 node_num=8
 
 
-resume_from_checkpoint=/mnt/afs/wyzhang/code/DreamVLA-seer/checkpoints/fine_tune_dreamvla_fourfeat_q9/q9_finetune_dreamvla_fourfeat/11.pth # e.g., checkpoints/finetune_dreamvla.pth
+resume_from_checkpoint= # e.g., checkpoints/finetune_dreamvla.pth
 
 IFS='/' read -ra path_parts <<< "$resume_from_checkpoint"
 run_name="${path_parts[-3]}/${path_parts[-2]}"
