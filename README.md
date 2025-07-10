@@ -76,7 +76,7 @@ python cotrack_extractor.py
 Install [SAM](https://github.com/facebookresearch/segment-anything). Note download the [checkpoints of SAM](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) and put it to ```./segment-anything/ckpts```.
 ```
 cp dist_utils.py ./segment-anything/
-mv ./data_info/ep_start_end_ids.npy ./segment-anything/
+mv ./data_info/ep_start_end_ids.npy <your_data_path>
 mv ./data_process/sam_extractor.py ./segment-anything/
 cd segment-anything
 python sam_extractor.py
