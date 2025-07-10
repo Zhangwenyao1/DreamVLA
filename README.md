@@ -100,7 +100,8 @@ python ./data_process/merge_track.py # merge optical flow into new dataset
 
 
 # Training
-Note: you need to change the detail of the *.sh in ```./scripts/CALVIN_ABC_D/DreamVLA/```
+Note: you need to change the detail of the *.sh in ```./scripts/CALVIN_ABC_D/DreamVLA/```. Moreover, if you use less than 8 gpus, plase change the *node_num* in *.sh.
+
 ### Pretrain:
 ```
 bash ./scripts/CALVIN_ABC_D/DreamVLA/pretrain.sh
