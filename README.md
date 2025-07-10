@@ -91,6 +91,7 @@ mv ./data_process/dino_extractor.py ./dinov2/
 cd dinov2
 python dino_extractor.py
 ```
+If you want to finetune our model, ```python dino_extractor.py``` is must to run.
 
 Merge all data and raw calvin dataset to produce the new dataset
 ```
