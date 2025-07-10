@@ -62,6 +62,8 @@ This repository's code is based on the [Seer](https://github.com/OpenRobotLab/Se
 
 # Data Processing
 
+Note: there is potential problem that ```Use .reshape(...) instead.```, just change it.
+
 ### Dynamic Region:  
 Install [co-tracker](https://github.com/facebookresearch/co-tracker.git). Note download the [checkpoints of co-tracker](https://huggingface.co/facebook/cotracker3/blob/main/scaled_offline.pth) and put it to ```./co-tracker/checkpoints```
 ```.
