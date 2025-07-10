@@ -75,6 +75,8 @@ python cotrack_extractor.py
 ### SAM Feature: 
 Install [SAM](https://github.com/facebookresearch/segment-anything). Note download the [checkpoints of SAM](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) and put it to ```./segment-anything/ckpts```.
 ```
+cp dist_utils.py ./segment-anything/
+mv ./data_info/ep_start_end_ids.npy ./segment-anything/
 mv ./data_process/sam_extractor.py ./segment-anything/
 cd segment-anything
 python sam_extractor.py
@@ -84,7 +86,7 @@ python sam_extractor.py
 
 Install [DINOV2](https://github.com/facebookresearch/dinov2). Note download the [checkpoints of dinov2]( https://huggingface.co/junjiexv/dinov2_vit/blob/main/dinov2_vits14_pretrain.pth) and put it to ```./dinov2/ckpts```.
 ```
-mv dist_utils.py ./dinov2/
+cp dist_utils.py ./dinov2/
 mv ./data_process/dino_extractor.py ./dinov2/
 cd dinov2
 python dino_extractor.py
