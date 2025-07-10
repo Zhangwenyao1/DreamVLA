@@ -1,5 +1,5 @@
 finetune_from_pretrained_ckpt="pretrian_weight_path"
-calvin_dataset_path="/mnt/afs/chenxuchuan/datasets/calvin/task_ABC_D/"
+calvin_dataset_path="" # your data path
 save_checkpoint_path="./checkpoints/"
 vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 
