@@ -1350,7 +1350,7 @@ class DiskCalvinDataset(BaseCalvinDataset):
         print(
             f'Found "ep_start_end_ids.npy" with {len(ep_start_end_ids)} episodes.'
         )
-        ep_start_end_ids = np.load(abs_datasets_dir / "except_lang_idx" / "except_lang_idx.npy").tolist()
+        ep_start_end_ids = np.load(abs_datasets_dir / "except_lang_idx" / "except_lang_idx.npy").tolist() # if there is bug, replace it with "ep_start_end_ids = np.load(abs_datasets_dir /  "ep_start_end_ids.npy").tolist()"
 
         for start_idx, end_idx in ep_start_end_ids:
             assert end_idx > self.max_window_size

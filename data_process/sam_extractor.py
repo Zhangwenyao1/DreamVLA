@@ -55,8 +55,6 @@ class CalvinDataset(Dataset):
         self.lang = np.load(lang_file, allow_pickle=True).item()
         self.ep_start_and_ids = ep_start_and_ids
         self.ep_lens = ep_lens
-
-        # self.all_files = glob.glob(os.path.join(data_root, 'episode_*.npz')) # 会比真正用到的要多很多
         _temp = []
         for item in self.lang['info']['indx']:
             _temp.extend(list(range(item[0], item[1]+1)))
@@ -87,7 +85,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--data_root",
-        default="/mnt/afs/chenxuchuan/datasets/calvin/task_ABC_D",
+        default=".../calvin/task_ABC_D", # replace with your data path
         type=str
     )
     parser.add_argument(
