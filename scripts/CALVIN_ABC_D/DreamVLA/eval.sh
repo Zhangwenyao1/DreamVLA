@@ -62,6 +62,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10219 eval_
     --sam_feat_pred \
     --pred_num 1 \
     --use_dit_head \
+    --attn_implementation "sdpa" \
     --resume_from_checkpoint ${resume_from_checkpoint} \
     | tee "${log_file}"
 
