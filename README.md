@@ -14,7 +14,7 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 
 <div align="center">
 
-<p align="center">
+<!-- <p align="center">
   <a href="https://zhangwenyao1.github.io/">Wenyao Zhang</a>*,
   <a href="https://ericliuhhh.github.io/">Hongsi Liu</a>*,
   <a href="https://qizekun.github.io/">Zekun Qi</a>*,
@@ -29,7 +29,7 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
   <a href="https://www.eitech.edu.cn/?p=leader-Wenjun%20Zeng&tid=19&lang=en">Wenjun Zeng</a>,
   <a href="http://home.ustc.edu.cn/~jinxustc/">Xin Jin</a>
 </p>
-
+<!-- </div> -->
 <p>
   <a href="https://arxiv.org/abs/2507.04447">
     <img src="https://img.shields.io/badge/Paper-PDF-orange.svg" alt="Paper PDF">
