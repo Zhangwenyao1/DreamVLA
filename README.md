@@ -50,7 +50,6 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
     <img src="https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg" alt="Data License">
   </a>
 </p>
->>>>>>> 4f42b852f6e5d4892fdc4a0288e13cfbf47f64d2
 
 </div>
 
