@@ -140,11 +140,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--data_root",
-<<<<<<< HEAD
-        default="your_calvin_abc_d_data_path",
-=======
         default=".../datasets/calvin/task_ABC_D", # replace with your data path
->>>>>>> 4f42b852f6e5d4892fdc4a0288e13cfbf47f64d2
         type=str
     )
     parser.add_argument(
