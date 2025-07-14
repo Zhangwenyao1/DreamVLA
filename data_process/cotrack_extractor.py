@@ -146,7 +146,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--data_root",
-        default="/mnt/afs/chenxuchuan/datasets/calvin/task_ABC_D",
+        default="your_calvin_abc_d_data_path",
         type=str
     )
     parser.add_argument(
