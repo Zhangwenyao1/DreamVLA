@@ -2,9 +2,9 @@
 DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 <!-- </div> -->
 
-<h3 align="center" style="font-size:38px; font-weight:bold; color:#9C276A; margin: 0;">
+<h3 align="center" style="font-size:48px; font-weight:bold; color:#9C276A; margin: 0;">
   <a href="https://arxiv.org/abs/2507.04447" style="color:#9C276A; text-decoration: none;">
-    DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge
+    DreamVLA: A Vision-Language-Action Model <br> Dreamed with Comprehensive World Knowledge
   </a>
 </h3>
 
