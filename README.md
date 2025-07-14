@@ -14,7 +14,7 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 
 <div align="center">
 
-<p>
+<p align="center">
   <a href="https://zhangwenyao1.github.io/">Wenyao Zhang</a>*,
   <a href="https://ericliuhhh.github.io/">Hongsi Liu</a>*,
   <a href="https://qizekun.github.io/">Zekun Qi</a>*,
@@ -22,7 +22,7 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
   <a href="#">Xinqiang Yu</a>,
   <a href="https://jzhzhang.github.io/">Jiazhao Zhang</a>,
   <a href="https://runpeidong.web.illinois.edu/">Runpei Dong</a>,
-  <a href="https://jiaweihe.com/">Jiawei He</a>,
+  <a href="https://jiaweihe.com/">Jiawei He</a>,<br>
   <a href="https://scholar.google.com/citations?user=X7M0I8kAAAAJ&hl=en">Zhizheng Zhang</a>,
   <a href="https://hughw19.github.io/">He Wang</a>,
   <a href="https://ericyi.github.io/">Li Yi</a>,
