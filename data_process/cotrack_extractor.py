@@ -55,7 +55,7 @@ def get_points_on_a_grid(patch_size, image_size, device):
     H, W = image_size
     ph, pw = patch_size
 
-    assert H % ph == 0 and W % pw == 0, "patch 大小必须整除图像尺寸"
+    assert H % ph == 0 and W % pw == 0, "The patch size must divide the image dimensions"
 
     y_centers = np.arange(ph // 2, H, ph)
     x_centers = np.arange(pw // 2, W, pw)
@@ -101,12 +101,6 @@ class CalvinDataset(Dataset):
         
 
         video = []
-        # for j in range(start_idx, end_idx+1):
-        #     ep = np.load(os.path.join(data_root, f'episode_{j:0{n_digits}d}.npz'))
-        #     img = ep['rgb_static']
-        #     img = Image.fromarray(img).resize((224, 224))
-        #     video.append(img)
-
         _load_episode = partial(load_episode, image_key=self.image_key)
         video = list(loader.map(_load_episode, range(start_idx, end_idx+1)))
 
@@ -146,7 +140,11 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--data_root",
+<<<<<<< HEAD
         default="your_calvin_abc_d_data_path",
+=======
+        default=".../datasets/calvin/task_ABC_D", # replace with your data path
+>>>>>>> 4f42b852f6e5d4892fdc4a0288e13cfbf47f64d2
         type=str
     )
     parser.add_argument(

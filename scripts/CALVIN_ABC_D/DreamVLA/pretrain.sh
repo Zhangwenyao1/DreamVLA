@@ -1,7 +1,7 @@
 #!/bin/bash
 ### need to change to your path ###
-calvin_dataset_path="/mnt/afs/chenxuchuan/datasets/calvin/task_ABC_D/"
-save_checkpoint_path="checkpoints/pretrain_Seer-Large_calvin_abc_d/"
+calvin_dataset_path=" " # change to your data path
+save_checkpoint_path="checkpoints/pretrain_DreamVLA_calvin_abc_d/"
 vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 node=1
 node_num=8
