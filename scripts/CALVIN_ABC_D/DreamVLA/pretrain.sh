@@ -44,9 +44,6 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train
     --atten_goal_state \
     --atten_only_obs \
     --attn_robot_proprio_state \
-    --depth_pred \
-    --loss_depth \
-    --use_dit_head \
     --except_lang \
     --attn_implementation "sdpa" \
     --save_checkpoint \
