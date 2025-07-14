@@ -12,16 +12,43 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
   ⭐ If our project helps you, please give us a star on GitHub to support us!
 </p>
 
-[Wenyao Zhang](https://zhangwenyao1.github.io/)\*, [Hongsi Liu](https://ericliuhhh.github.io/)\*, [Zekun Qi](https://qizekun.github.io/)\*, [Yunnan Wang](https://wangyunnan.github.io/)\*, [Xinqiang Yu](), [Jiazhao Zhang](https://jzhzhang.github.io/), [Runpei Dong](https://runpeidong.web.illinois.edu/), [Jiawei He](https://jiaweihe.com/), [Zhizheng Zhang](https://scholar.google.com/citations?user=X7M0I8kAAAAJ&hl=en), [He Wang](https://hughw19.github.io/) and [Li Yi](https://ericyi.github.io/), [Wenjun Zeng](https://www.eitech.edu.cn/?p=leader-Wenjun%20Zeng&tid=19&lang=en), [Xin Jin](http://home.ustc.edu.cn/~jinxustc/).
+<div align="center">
 
-[![Paper PDF](https://img.shields.io/badge/Paper-PDF-orange.svg)](https://arxiv.org/abs/2507.04447)
-[![Project Page](https://img.shields.io/badge/Project-Page-Green.svg)](https://zhangwenyao1.github.io/DreamVLA)
-[![Hugging Face](https://img.shields.io/badge/🤗-Hugging_Face-yellow.svg)](https://huggingface.co/WenyaoZhang/DreamVLA)
-[![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-green.svg)](https://github.com/tatsu-lab/stanford_alpaca/blob/main/LICENSE)
-[![Data License](https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg)](https://github.com/tatsu-lab/stanford_alpaca/blob/main/DATA_LICENSE)
+<p>
+  <a href="https://zhangwenyao1.github.io/">Wenyao Zhang</a>*,
+  <a href="https://ericliuhhh.github.io/">Hongsi Liu</a>*,
+  <a href="https://qizekun.github.io/">Zekun Qi</a>*,
+  <a href="https://wangyunnan.github.io/">Yunnan Wang</a>*,
+  <a href="#">Xinqiang Yu</a>,
+  <a href="https://jzhzhang.github.io/">Jiazhao Zhang</a>,
+  <a href="https://runpeidong.web.illinois.edu/">Runpei Dong</a>,
+  <a href="https://jiaweihe.com/">Jiawei He</a>,
+  <a href="https://scholar.google.com/citations?user=X7M0I8kAAAAJ&hl=en">Zhizheng Zhang</a>,
+  <a href="https://hughw19.github.io/">He Wang</a>,
+  <a href="https://ericyi.github.io/">Li Yi</a>,
+  <a href="https://www.eitech.edu.cn/?p=leader-Wenjun%20Zeng&tid=19&lang=en">Wenjun Zeng</a>,
+  <a href="http://home.ustc.edu.cn/~jinxustc/">Xin Jin</a>
+</p>
 
-	
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/dreamvla-a-vision-language-action-model/robot-manipulation-on-calvin)](https://paperswithcode.com/sota/robot-manipulation-on-calvin?p=dreamvla-a-vision-language-action-model)
+<p>
+  <a href="https://arxiv.org/abs/2507.04447">
+    <img src="https://img.shields.io/badge/Paper-PDF-orange.svg" alt="Paper PDF">
+  </a>
+  <a href="https://zhangwenyao1.github.io/DreamVLA">
+    <img src="https://img.shields.io/badge/Project-Page-Green.svg" alt="Project Page">
+  </a>
+  <a href="https://huggingface.co/WenyaoZhang/DreamVLA">
+    <img src="https://img.shields.io/badge/🤗-Hugging_Face-yellow.svg" alt="Hugging Face">
+  </a>
+  <a href="https://github.com/tatsu-lab/stanford_alpaca/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/Code%20License-Apache_2.0-green.svg" alt="Code License">
+  </a>
+  <a href="https://github.com/tatsu-lab/stanford_alpaca/blob/main/DATA_LICENSE">
+    <img src="https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg" alt="Data License">
+  </a>
+</p>
+
+</div>
 
 
 ## The difference from previous works
