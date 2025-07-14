@@ -2,10 +2,15 @@
 DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 <!-- </div> -->
 
-<h6 align="center" style="font-size:40px;"><a href="https://arxiv.org/abs/2507.04447" style="color:#9C276A" >
-DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge</a></h6>
+<div align="center" style="font-size:28px; font-weight:bold; color:#9C276A;">
+  <a href="https://arxiv.org/abs/2507.04447" style="color:#9C276A; text-decoration: none;">
+    DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge
+  </a>
+</div>
 
-<h5 align="center"> If our project helps you, please give us a star ⭐ on GitHub to support us. </h2>
+<p align="center">
+  ⭐ If our project helps you, please give us a star on GitHub to support us!
+</p>
 
 [Wenyao Zhang](https://zhangwenyao1.github.io/)\*, [Hongsi Liu](https://ericliuhhh.github.io/)\*, [Zekun Qi](https://qizekun.github.io/)\*, [Yunnan Wang](https://wangyunnan.github.io/)\*, [Xinqiang Yu](), [Jiazhao Zhang](https://jzhzhang.github.io/), [Runpei Dong](https://runpeidong.web.illinois.edu/), [Jiawei He](https://jiaweihe.com/), [Zhizheng Zhang](https://scholar.google.com/citations?user=X7M0I8kAAAAJ&hl=en), [He Wang](https://hughw19.github.io/) and [Li Yi](https://ericyi.github.io/), [Wenjun Zeng](https://www.eitech.edu.cn/?p=leader-Wenjun%20Zeng&tid=19&lang=en), [Xin Jin](http://home.ustc.edu.cn/~jinxustc/).
 
