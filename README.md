@@ -49,7 +49,10 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
   <a href="https://github.com/tatsu-lab/stanford_alpaca/blob/main/DATA_LICENSE">
     <img src="https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg" alt="Data License">
   </a>
+	
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/dreamvla-a-vision-language-action-model/robot-manipulation-on-calvin)](https://paperswithcode.com/sota/robot-manipulation-on-calvin?p=dreamvla-a-vision-language-action-model)
 </p>
+
 
 </div>
 
