@@ -291,10 +291,7 @@ class DreamVLA(nn.Module):
                                     attn_robot_proprio_state = self.attn_robot_proprio_state,
                                     mask_l_obs_ratio=self.mask_l_obs_ratio,
                                     num_obs_token=this_num_obs_token,
-                                    action_pred_steps=self.action_pred_steps,
-                                    # num_obs=self.NUM_OBS_TOKEN,
-                                    # num_depth=self.NUM_DEPTH_TOKEN,
-                                    # num_traj=self.NUM_TRAJ_TOKEN,
+                                    action_pred_steps=self.action_pred_steps
                                     ), 
                                     requires_grad=False)
         num_non_learnable_token_per_timestep = 1+1+self.NUM_RESAMPLER_QUERY*2+1*2
@@ -412,7 +409,6 @@ class DreamVLA(nn.Module):
                 )
             self.sam_decoder_norm = nn.LayerNorm(self.SAM_DECODER_hidden_dim)
             self.sam_decoder_pred = nn.Linear(self.SAM_DECODER_hidden_dim, 256) # sam特征维度256
-            self.sam_loss_head = SiLogLoss()
             self.sam_mask_token = nn.Parameter(torch.zeros(1, 1, self.SAM_DECODER_hidden_dim))
             self.sam_decoder_position_embedding = nn.Parameter(torch.zeros(1, self.NUM_OBS_TOKEN_PER_SAM + self.NUM_SAM_MASK_TOKEN, self.SAM_DECODER_hidden_dim), requires_grad=False)
 
@@ -556,6 +552,13 @@ class DreamVLA(nn.Module):
             depth_decoder_position_embedding = np.concatenate((depth_decoder_position_embedding_obs, depth_decoder_position_embedding_mask), axis=0)
             self.depth_decoder_position_embedding.data.copy_(torch.from_numpy(depth_decoder_position_embedding).float().unsqueeze(0))
             torch.nn.init.normal_(self.depth_mask_token, std=.02)
+        # if you eval, please note that the sam position embedding is not used in the evaluation
+        # if self.sam_feat_pred:
+        #     sam_decoder_position_embedding_obs = get_2d_sincos_pos_embed(self.SAM_DECODER_hidden_dim, int(self.NUM_OBS_TOKEN_PER_SAM**.5), cls_token=False)
+        #     sam_decoder_position_embedding_mask = get_2d_sincos_pos_embed(self.SAM_DECODER_hidden_dim, int(self.NUM_SAM_MASK_TOKEN**.5), cls_token=False)
+        #     sam_decoder_position_embedding = np.concatenate((sam_decoder_position_embedding_obs, sam_decoder_position_embedding_mask), axis=0)
+        #     self.sam_decoder_position_embedding.data.copy_(torch.from_numpy(sam_decoder_position_embedding).float().unsqueeze(0))
+        #     torch.nn.init.normal_(self.sam_mask_token, std=.02)
         if self.dino_feat_pred:
             dino_decoder_position_embedding_obs = get_2d_sincos_pos_embed(self.DINO_DECODER_hidden_dim, int(self.NUM_OBS_TOKEN_PER_DINO**.5), cls_token=False)
             dino_decoder_position_embedding_mask = get_2d_sincos_pos_embed(self.DINO_DECODER_hidden_dim, int(self.NUM_DINO_MASK_TOKEN**.5), cls_token=False)
@@ -618,9 +621,6 @@ class DreamVLA(nn.Module):
                             mask_l_obs_ratio=self.mask_l_obs_ratio,
                             num_obs_token=this_num_obs_token,
                             action_pred_steps=self.action_pred_steps,
-                            # num_obs=self.NUM_OBS_TOKEN,
-                            # num_depth=self.NUM_DEPTH_TOKEN,
-                            # num_traj=self.NUM_TRAJ_TOKEN
                             ).to(self.device), 
                             requires_grad=False)
         B, S, _ = state.shape
