@@ -85,7 +85,7 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
 ### Create an anaconda environment
 
 ```
-conda create -n dreamvla python=3.10
+conda create -n dreamvla python=3.8
 conda activate dreamvla
 ```
 
