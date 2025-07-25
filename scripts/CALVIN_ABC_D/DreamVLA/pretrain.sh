@@ -23,7 +23,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train
     --precision fp32 \
     --learning_rate 1e-4 \
     --finetune_type "calvin" \
-    --wandb_project seer \
+    --wandb_project dreamvla \
     --weight_decay 1e-4 \
     --num_resampler_query 16 \
     --num_obs_token_per_image 9 \
