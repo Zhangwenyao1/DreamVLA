@@ -239,6 +239,7 @@ def get_parser(is_eval=False):
     parser.add_argument("--reset_mask_token", default=False, action="store_true")
     parser.add_argument("--reset_image_decoder", default=False, action="store_true")
     parser.add_argument("--reset_action_decoder", default=False, action="store_true")
+    parser.add_argument("--reset_resampler", default=False, action="store_true")
     # loss
     parser.add_argument("--loss_action", default=False, action="store_true")
     parser.add_argument("--loss_image", default=False, action="store_true")

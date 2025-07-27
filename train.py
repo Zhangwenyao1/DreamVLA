@@ -215,6 +215,7 @@ def main(args):
         projector_keys = [k for k in checkpoint["model_state_dict"].keys() if "projector" in k]
         image_decoder_obs_pred_projector_keys = [k for k in checkpoint["model_state_dict"].keys() if "image_decoder_obs_pred_projector" in k]
         action_decoder_keys = [k for k in checkpoint["model_state_dict"].keys() if "action_decoder" in k]
+        resampler_keys = [k for k in checkpoint["model_state_dict"].keys() if "perceiver_resampler" in k]
         if args.reset_action_token:
             del checkpoint["model_state_dict"]["module.action_pred_token"] 
         if args.reset_obs_token:
@@ -233,6 +234,14 @@ def main(args):
             for k in image_decoder_obs_pred_projector_keys:
                 if k in checkpoint["model_state_dict"]:
                     del checkpoint["model_state_dict"][k]
+        if args.reset_resampler:
+            for k in resampler_keys:
+                if k in checkpoint["model_state_dict"]:
+                    del checkpoint["model_state_dict"][k]
+            del checkpoint["model_state_dict"]["module.image_primary_projector.weight"]
+            del checkpoint["model_state_dict"]["module.cls_token_primary_projector.weight"]
+            del checkpoint["model_state_dict"]["module.image_wrist_projector.weight"]
+            del checkpoint["model_state_dict"]["module.cls_token_wrist_projector.weight"]
         if checkpoint["model_state_dict"]["module.transformer_backbone_position_embedding"].shape != ddp_model.module.transformer_backbone_position_embedding.shape:
             checkpoint["model_state_dict"]["module.transformer_backbone_position_embedding"] = checkpoint["model_state_dict"]["module.transformer_backbone_position_embedding"][:, :args.sequence_length, :, :]
         print("loading pretrained weights :", checkpoint["model_state_dict"].keys())
