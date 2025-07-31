@@ -8,11 +8,11 @@ import PIL.Image as Image
 import copy
 from collections import deque
 from moviepy.editor import ImageSequenceClip
-from calvin.calvin_models.calvin_agent.models.calvin_base_model import CalvinBaseModel
+from calvin_agent.models.calvin_base_model import CalvinBaseModel
 import time
 sys.path.insert(0, Path(__file__).absolute().parents[2].as_posix())
-from calvin.calvin_models.calvin_agent.evaluation.multistep_sequences import get_sequences
-from calvin.calvin_models.calvin_agent.evaluation.utils import (
+from calvin_agent.evaluation.multistep_sequences import get_sequences
+from calvin_agent.evaluation.utils import (
     collect_plan,
     count_success,
     create_tsne,

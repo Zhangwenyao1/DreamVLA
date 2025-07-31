@@ -5,11 +5,11 @@ import torch
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-dataset_path = 'calvin_datasets_with_dinosam/task_ABC_D'
-traj_path = '/mnt/afs/wyzhang/code/DreamVLA_robovlm/co-tracker/calvin_dense_k10/task_ABC_D'
-output_path = 'calvin_datasets_mergedall/task_ABC_D'
+dataset_path = '/inspire/hdd/global_user/guchun-240107140023/task_ABC_D'
+traj_path = '/inspire/hdd/project/robotsimulation/guchun-240107140023/Wenyao/DreamVLA/co-tracker/calvin_dense_k10/task_ABC_D'
+output_path = '/inspire/ssd/project/robotsimulation/guchun-240107140023/Wenyao/calvin_datasets_mergedall/task_ABC_D'
 
-splits = ['validation', 'training']
+splits = ['training']
 
 def _convert(file):
     # try:
@@ -35,7 +35,7 @@ for split in splits:
     
     # for file in all_files:
     #     _convert(file)
-    with ThreadPoolExecutor(max_workers=32) as executor:
+    with ThreadPoolExecutor(max_workers=64) as executor:
         futures = [executor.submit(_convert, file) for file in all_files]
 
     for _ in tqdm(as_completed(futures), total=len(futures), desc="Processing"):

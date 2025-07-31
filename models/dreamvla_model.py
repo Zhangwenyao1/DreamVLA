@@ -15,7 +15,7 @@ from models.gpt2 import GPT2Model
 from transformers import GPT2Config
 from pdb import set_trace
 import random 
-from models.action_model.action_model import  ActionModel
+from models.action_model.action_model import  ActionModel, ActionModelFM
 from utils.sigloss import SiLogLoss
 from typing import Any, Callable, Dict, Optional, Protocol, Tuple, Union
 from torch.cuda.amp import autocast
@@ -161,7 +161,9 @@ class DreamVLA(nn.Module):
         no_pred_gripper_traj = False,
         no_unshuffle = False,
         share_query = False,
-        attn_implementation = False
+        attn_implementation = False,
+        use_fm = False,
+        dit_type = "DiT-B",
     ):
         super().__init__()
         self.finetune_type = finetune_type
@@ -180,6 +182,7 @@ class DreamVLA(nn.Module):
         self.mask_l_obs_ratio = mask_l_obs_ratio
         self.hidden_dim = hidden_dim
         self.phase = phase
+        self.dit_type = dit_type
         assert self.phase in ["pretrain", "finetune", "evaluate"]
         
         self.share_query = share_query
@@ -439,13 +442,14 @@ class DreamVLA(nn.Module):
 
         self.use_dit_head = use_dit_head
         if self.use_dit_head:
-
-            action_model_type = "DiT-B"
+            
+            action_model_type = self.dit_type
             token_size = self.hidden_dim
             action_dim = 7
             future_action_window_size = self.action_pred_steps - 1
             past_action_window_size = 0
-            self.action_model = ActionModel(model_type = action_model_type, 
+            action_mode_cls = ActionModel if not use_fm else ActionModelFM
+            self.action_model = action_mode_cls(model_type = action_model_type, 
                                             token_size = token_size, 
                                             in_channels = action_dim, 
                                             future_action_window_size = future_action_window_size, 
@@ -669,24 +673,25 @@ class DreamVLA(nn.Module):
                 image_primary_feature, _, _ = self.vision_encoder.forward_encoder(image_primary.flatten(0, 1), mask_ratio=0.0)
                 image_wrist_feature, _, _ = self.vision_encoder.forward_encoder(image_wrist.flatten(0, 1), mask_ratio=0.0)
             else:
-                dino_primary_feature = self.dino_featurizer(image_primary.flatten(0, 1), return_prefix_tokens=True)[0]
+                # import pdb; pdb.set_trace()
+                dino_primary_feature = self.dino_featurizer(image_primary.flatten(0, 1), return_prefix_tokens=True)
                 dino_primary_cls_token = dino_primary_feature[1][:, 0]
                 dino_primary_patches = dino_primary_feature[0]
                 
-                siglip_primary_features = self.siglip_featurizer(image_primary.flatten(0, 1))[0]
+                siglip_primary_features = self.siglip_featurizer(image_primary.flatten(0, 1))
                 siglip_primary_patches = siglip_primary_features
-                
+                # import pdb; pdb.set_trace()
                 image_primary_feature = torch.cat([dino_primary_patches, siglip_primary_patches], dim=2)
                 image_primary_cls_token = dino_primary_cls_token
                 
                 
                 
-                dino_wrist_feature= self.dino_featurizer(image_wrist.flatten(0, 1), return_prefix_tokens=True)[0]
+                dino_wrist_feature= self.dino_featurizer(image_wrist.flatten(0, 1), return_prefix_tokens=True)
                 dino_wrist_cls_token = dino_wrist_feature[1][:, 0]
                 dino_wrist_patches = dino_wrist_feature[0]
                 
                 
-                siglip_primary_features = self.siglip_featurizer(image_wrist.flatten(0, 1))[0]
+                siglip_primary_features = self.siglip_featurizer(image_wrist.flatten(0, 1))
                 siglip_wrist_patches = siglip_primary_features
                 
                 

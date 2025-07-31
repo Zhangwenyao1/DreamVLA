@@ -67,7 +67,8 @@ def main():
         no_unshuffle=args.no_unshuffle,
         use_gpt2_pretrained = args.use_gpt2_pretrained,
         share_query=args.share_query,
-        attn_implementation= args.attn_implementation
+        attn_implementation= args.attn_implementation,
+        dit_type = args.dit_type
         
     )
     calvin_dataset = get_calvin_dataset(args, model.image_processor, clip, epoch=0)

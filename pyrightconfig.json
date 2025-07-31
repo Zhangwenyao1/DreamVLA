@@ -1,0 +1,8 @@
+{
+    "exclude": [
+        "libero_90_converted","libero_10_converted",
+        "libero_goal_converted",
+        "libero_object_converted",
+        "libero_spatial_converted"
+    ]
+}

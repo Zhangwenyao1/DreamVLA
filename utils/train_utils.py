@@ -100,8 +100,8 @@ def train_one_epoch_calvin(
         images_wrist = batch_calvin[3].to(device_id, dtype=cast_dtype, non_blocking=True)
         
         # depths
-        depths_primary = batch_calvin[6].to(device_id, dtype=cast_dtype, non_blocking=True)
-        depths_wrist = batch_calvin[7].to(device_id, dtype=cast_dtype, non_blocking=True)
+        depths_primary = batch_calvin[6].to(device_id, dtype=cast_dtype, non_blocking=True) if batch_calvin[6] is not None else None
+        depths_wrist = batch_calvin[7].to(device_id, dtype=cast_dtype, non_blocking=True) if batch_calvin[7] is not None else None
         
         # dino & sam
         dino_feat_primary = batch_calvin[8].to(device_id, dtype=cast_dtype, non_blocking=True) if batch_calvin[8] is not None else None

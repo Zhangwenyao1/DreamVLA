@@ -1,11 +1,11 @@
 finetune_from_pretrained_ckpt="pretrian_weight_path"
-calvin_dataset_path="" # your data path
+calvin_dataset_path="/inspire/hdd/global_user/guchun-240107140023/task_ABC_D/" # your data path
 save_checkpoint_path="./checkpoints/"
 vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 
 node=1
 node_num=8
-torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train.py \
+torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10215 train.py \
     --traj_cons \
     --rgb_pad 10 \
     --gripper_pad 4 \

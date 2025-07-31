@@ -114,7 +114,81 @@ class SpacedDiffusion(GaussianDiffusion):
     def _scale_timesteps(self, t):
         # Scaling is done by the wrapped model.
         return t
+    
+class FMDiffusion(GaussianDiffusion):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    def ddim_sample_loop(
+        self,
+        model,
+        shape,
+        *args,
+        noise=None,
+        clip_denoised=True,
+        denoised_fn=None,
+        cond_fn=None,
+        model_kwargs=None,
+        device=None,
+        progress=False,
+        **kwargs
+    ):
+        if 'cfg_scale' in model_kwargs:
+            # model_kwargs.pop('cfg_scale')
+            model_kwargs['cfg_scale'] = 1.0
+        final = th.randn(shape, device='cuda')
+        delta = 1 / self.num_timesteps
+        indices = list(range(self.num_timesteps))
+        for i in indices:
+            t = th.tensor([i] * shape[0], device=device).float()
+            t /= self.num_timesteps
+            with th.no_grad():
+                out = self.p_sample(
+                    model,
+                    final,
+                    t,
+                    clip_denoised=clip_denoised,
+                    denoised_fn=denoised_fn,
+                    cond_fn=cond_fn,
+                    model_kwargs=model_kwargs,
+                )
+            final = final + delta * out['ut']
+        return final
 
+    def p_mean_variance(self, model, x, t, clip_denoised=True, denoised_fn=None, model_kwargs=None):
+        if model_kwargs is None:
+            model_kwargs = {}
+
+        B, C = x.shape[:2]
+        assert t.shape == (B,)
+        model_output = model(x, t, **model_kwargs)
+        if isinstance(model_output, tuple):
+            model_output, extra = model_output
+        else:
+            extra = None
+        return {
+            "ut": model_output
+        }
+   
+    def p_sample(
+        self,
+        model,
+        x,
+        t,
+        clip_denoised=True,
+        denoised_fn=None,
+        cond_fn=None,
+        model_kwargs=None,
+    ):
+        out = self.p_mean_variance(
+            model,
+            x,
+            t,
+            clip_denoised=clip_denoised,
+            denoised_fn=denoised_fn,
+            model_kwargs=model_kwargs,
+        )
+        return out
 
 class _WrappedModel:
     def __init__(self, model, timestep_map, original_num_steps):

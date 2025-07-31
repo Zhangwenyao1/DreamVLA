@@ -196,6 +196,7 @@ def get_parser(is_eval=False):
     parser.add_argument("--loss_gripper_action_ratio", type=float, default=0.01)   
     # action_pred_steps
     parser.add_argument("--action_pred_steps", type=int, default=1)
+    parser.add_argument("--dit_type", type=str, default="DiT-B")
     # obs_pred
     parser.add_argument("--obs_pred", default=False, action="store_true")
     parser.add_argument("--atten_only_obs", default=False, action="store_true")
@@ -208,6 +209,7 @@ def get_parser(is_eval=False):
     
     # dit_head
     parser.add_argument("--use_dit_head", default=False, action="store_true")
+    parser.add_argument("--use_fm", default=False, action="store_true")
     
     
     #depth pred
@@ -239,6 +241,7 @@ def get_parser(is_eval=False):
     parser.add_argument("--reset_mask_token", default=False, action="store_true")
     parser.add_argument("--reset_image_decoder", default=False, action="store_true")
     parser.add_argument("--reset_action_decoder", default=False, action="store_true")
+    parser.add_argument("--reset_resampler", default=False, action="store_true")
     # loss
     parser.add_argument("--loss_action", default=False, action="store_true")
     parser.add_argument("--loss_image", default=False, action="store_true")

@@ -1,10 +1,10 @@
 #!/bin/bash
 ### need to change to your path ###
-calvin_dataset_path=" " # change to your data path
+calvin_dataset_path="/inspire/hdd/global_user/guchun-240107140023/task_ABC_D/" # change to your data path
 save_checkpoint_path="checkpoints/pretrain_DreamVLA_calvin_abc_d/"
-vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
+vit_checkpoint_path="/inspire/hdd/project/robotsimulation/guchun-240107140023/Hanzhe/Seer/checkpoints/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 node=1
-node_num=8
+node_num=2
 
 torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train.py \
     --traj_cons \
@@ -19,7 +19,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train
     --save_every_iter 100000 \
     --num_epochs 20 \
     --seed 42 \
-    --batch_size 8 \
+    --batch_size 2 \
     --precision fp32 \
     --learning_rate 1e-4 \
     --finetune_type "calvin" \

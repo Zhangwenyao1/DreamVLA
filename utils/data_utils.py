@@ -571,8 +571,8 @@ class BaseCalvinDataset(Dataset):
         window_size: int = 0,
     ) -> Dict[str, Dict[str, torch.Tensor]]:
         seq_track_label_dict = {}
-        tracks = episode['traj_static'] # [Nframe, Npoints, 2]
-        visibility = episode['visibility_static'] # [Nframe, Npoints]
+        tracks = episode['tracks'] # [Nframe, Npoints, 2]
+        visibility = episode['visibility'] # [Nframe, Npoints]
         if window_size == 0 and seq_idx == 0:
             tracks = torch.from_numpy(tracks)
             visibility = torch.from_numpy(visibility)
@@ -580,7 +580,7 @@ class BaseCalvinDataset(Dataset):
             tracks = torch.from_numpy(tracks[seq_idx : seq_idx + window_size])
             visibility = torch.from_numpy(visibility[seq_idx : seq_idx + window_size])
 
-        tracks_gripper = episode['traj_gripper'] # [Nframe, Npoints, 2]
+        tracks_gripper = episode['tracks_gripper'] # [Nframe, Npoints, 2]
         visibility_gripper = episode['visibility_gripper'] # [Nframe, Npoints]
         if window_size == 0 and seq_idx == 0:
             tracks_gripper = torch.from_numpy(tracks_gripper)
@@ -651,6 +651,7 @@ class BaseCalvinDataset(Dataset):
          # wyzhang
         if sequence['depth_obs'] is not None:
             new_depth_list = []
+            # import pdb;pdb.set_trace()
             np_depth = copy.deepcopy(sequence["depth_obs"]["depth_static"].numpy())
             for i in range(np_depth.shape[0]):
                 new_depth_list.append(np_depth[i, :, :])
@@ -996,6 +997,7 @@ class DiskCalvinDataset(BaseCalvinDataset):
         
     # def __getstate__(self):
     #     state = self.__dict__.copy()
+    #     # 不传递 env 到子进程
     #     state['dino_static_env'] = None
     #     state['dino_gripper_env'] = None
     #     return state
@@ -1057,25 +1059,19 @@ class DiskCalvinDataset(BaseCalvinDataset):
         keys = list(chain(*self.observation_space.values()))
         keys.remove("language")
         keys.append("scene_obs")
-        if self.load_dino_features:
-            keys.append("dino_static")
-            keys.append("dino_gripper")
-        if self.load_sam_features:
-            keys.append("sam_static")
-            keys.append("sam_gripper")
-        if self.load_track_labels:
-            keys.append("traj_static")
-            keys.append("traj_gripper")
-            keys.append("visibility_static")
-            keys.append("visibility_gripper")
-            
-        episodes = [
-            self.load_file(self._get_episode_name(file_idx))
-            for file_idx in range(start_idx, end_idx)
-        ]
-        # episode_names = [self._get_episode_name(file_idx) for file_idx in range(start_idx, end_idx)]
-        # with ThreadPoolExecutor(max_workers=64) as executor:
-        #     episodes = list(executor.map(self.load_file, episode_names))
+        # if self.load_dino_features:
+        #     keys.append("dino_static")
+        #     keys.append("dino_gripper")
+        # if self.load_sam_features:
+        #     keys.append("sam_static")
+        #     keys.append("sam_gripper")
+        # episodes = [
+        #     self.load_file(self._get_episode_name(file_idx))
+        #     for file_idx in range(start_idx, end_idx)
+        # ]
+        episode_names = [self._get_episode_name(file_idx) for file_idx in range(start_idx, end_idx)]
+        with ThreadPoolExecutor(max_workers=16) as executor:
+            episodes = list(executor.map(self.load_file, episode_names))
 
         episode = {key: np.stack([ep[key] for ep in episodes]) for key in keys}
         if self.with_lang:
@@ -1088,50 +1084,50 @@ class DiskCalvinDataset(BaseCalvinDataset):
         # lhs: dino & sam features
         # start_time = time.time()
         if self.load_dino_features:
-            # assert self.dino_features_path is not None
-            # if self.cache_static is None:
-            #     ################### vanilla #######################
-            #     dino_feats_static = []
-            #     dino_feats_gripper = []
-            #     for file_idx in range(start_idx, end_idx):
-            #         feat_static = (torch.load(os.path.join(self.dino_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #         dino_feats_static.append(feat_static)
-            #         feat_gripper = (torch.load(os.path.join(self.dino_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #         dino_feats_gripper.append(feat_gripper)   
-            #     self.cache_gripper = dino_feats_gripper
-            #     episode['dino_feats_static'] = np.stack(dino_feats_static)
-            #     self.cache_static = episode['dino_feats_static']
-            #     episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
-            #     self.cache_gripper =  episode['dino_feats_gripper']
-            # else:
-            #     episode['dino_feats_static'] = self.cache_static 
-            #     episode['dino_feats_gripper'] = self.cache_gripper 
+            assert self.dino_features_path is not None
+            if self.cache_static is None:
+                ################### vanilla #######################
+                dino_feats_static = []
+                dino_feats_gripper = []
+                for file_idx in range(start_idx, end_idx):
+                    feat_static = (torch.load(os.path.join(self.dino_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                    dino_feats_static.append(feat_static)
+                    feat_gripper = (torch.load(os.path.join(self.dino_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                    dino_feats_gripper.append(feat_gripper)   
+                self.cache_gripper = dino_feats_gripper
+                episode['dino_feats_static'] = np.stack(dino_feats_static)
+                self.cache_static = episode['dino_feats_static']
+                episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
+                self.cache_gripper =  episode['dino_feats_gripper']
+            else:
+                episode['dino_feats_static'] = self.cache_static 
+                episode['dino_feats_gripper'] = self.cache_gripper 
 
             ################## multithread #######################
-            # _func = partial(self._load_dino_feat, img_key='rgb_static')
-            # with ThreadPoolExecutor(max_workers=16) as executor:
-            #     dino_feats_static = list(executor.map(_func, list(range(start_idx, end_idx))))
+#             _func = partial(self._load_dino_feat, img_key='rgb_static')
+#             with ThreadPoolExecutor(max_workers=16) as executor:
+#                 dino_feats_static = list(executor.map(_func, list(range(start_idx, end_idx))))
 
-            # _func = partial(self._load_dino_feat, img_key='rgb_gripper')
-            # with ThreadPoolExecutor(max_workers=16) as executor:
-            #     dino_feats_gripper = list(executor.map(_func, list(range(start_idx, end_idx))))
-            # episode['dino_feats_static'] = np.stack(dino_feats_static)
-            # episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
+#             _func = partial(self._load_dino_feat, img_key='rgb_gripper')
+#             with ThreadPoolExecutor(max_workers=16) as executor:
+#                 dino_feats_gripper = list(executor.map(_func, list(range(start_idx, end_idx))))
+#             episode['dino_feats_static'] = np.stack(dino_feats_static)
+#             episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
 
             ################## npz #######################
-            # for file_idx in range(start_idx, end_idx):
-            #     feat = (np.load(os.path.join(self.dino_features_path, 'training' if not self.validation else 'validation', f'{file_idx}.npz')))
-            #     dino_feats_static.append(feat['static'])
-            #     dino_feats_gripper.append(feat['gripper'])   
+#             for file_idx in range(start_idx, end_idx):
+#                 feat = (np.load(os.path.join(self.dino_features_path, 'training' if not self.validation else 'validation', f'{file_idx}.npz')))
+#                 dino_feats_static.append(feat['static'])
+#                 dino_feats_gripper.append(feat['gripper'])   
 
-            #### zwy ## 
-            # _get_dino_name = lambda file_idx: Path(os.path.join(self.dino_features_path, 'training/training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-            # dino_labels = [self.load_file(_get_dino_name(file_idx)) for file_idx in range(start_idx, end_idx)]     
-            # try:
-            #     dino_feats_static = [ep['static'] for ep in dino_labels]
-            #     dino_feats_gripper =  [ep['gripper'] for ep in dino_labels]
-            # except:
-            #     print('static is not a file in the archive', f'start_idx.{start_idx}', f'end_idx.{end_idx}')
+#             ### zwy ## 
+#             _get_dino_name = lambda file_idx: Path(os.path.join(self.dino_features_path, 'training/training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
+#             dino_labels = [self.load_file(_get_dino_name(file_idx)) for file_idx in range(start_idx, end_idx)]     
+#             try:
+#                 dino_feats_static = [ep['static'] for ep in dino_labels]
+#                 dino_feats_gripper =  [ep['gripper'] for ep in dino_labels]
+#             except:
+#                 print('static is not a file in the archive', f'start_idx.{start_idx}', f'end_idx.{end_idx}')
             ################### lmdb #######################
             # with self.dino_static_env.begin() as txn:
             #     for file_idx in range(start_idx, end_idx):
@@ -1145,10 +1141,10 @@ class DiskCalvinDataset(BaseCalvinDataset):
             #         dino_feats_gripper.append(data.to(torch.float32).numpy())
 
             ################### from episode #######################
-            episode['dino_feats_static'] = episode['dino_static']
-            episode['dino_feats_gripper'] = episode['dino_gripper']
-            episode.pop('dino_static', None)
-            episode.pop('dino_gripper', None)
+            # episode['dino_feats_static'] = episode['dino_static']
+            # episode['dino_feats_gripper'] = episode['dino_gripper']
+            # episode.pop('dino_static', None)
+            # episode.pop('dino_gripper', None)
 
 
         # if time.time()-start_time > 0.3:
@@ -1157,64 +1153,76 @@ class DiskCalvinDataset(BaseCalvinDataset):
         if self.load_sam_features:
             sam_feats_static = []
             sam_feats_gripper = []
-            # assert self.sam_features_path is not None
+            assert self.sam_features_path is not None
             ################### vanilla #######################
-            # for file_idx in range(start_idx, end_idx):
-            #     feat_static = (torch.load(os.path.join(self.sam_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #     sam_feats_static.append(feat_static)
-            #     feat_gripper = (torch.load(os.path.join(self.sam_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #     sam_feats_gripper.append(feat_gripper)
+            for file_idx in range(start_idx, end_idx):
+                feat_static = (torch.load(os.path.join(self.sam_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                sam_feats_static.append(feat_static)
+                feat_gripper = (torch.load(os.path.join(self.sam_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                sam_feats_gripper.append(feat_gripper)
 
             ################## multithread #######################
-            # _func = partial(self._load_sam_feat, img_key='rgb_static')
-            # _file_indices = list(range(start_idx, end_idx))
-            # with ThreadPoolExecutor(max_workers=16) as executor:
-            #     sam_feats_static = list(executor.map(_func, _file_indices))
+#             _func = partial(self._load_sam_feat, img_key='rgb_static')
+#             _file_indices = list(range(start_idx, end_idx))
+#             with ThreadPoolExecutor(max_workers=16) as executor:
+#                 sam_feats_static = list(executor.map(_func, _file_indices))
 
-            # _func = partial(self._load_sam_feat, img_key='rgb_gripper')
-            # with ThreadPoolExecutor(max_workers=16) as executor:
-            #     sam_feats_gripper = list(executor.map(_func, _file_indices))
-            # episode['sam_feats_static'] = np.stack(sam_feats_static).transpose(0, 2, 1)
-            # episode['sam_feats_gripper'] = np.stack(sam_feats_gripper).transpose(0, 2, 1)
+#             _func = partial(self._load_sam_feat, img_key='rgb_gripper')
+#             with ThreadPoolExecutor(max_workers=16) as executor:
+#                 sam_feats_gripper = list(executor.map(_func, _file_indices))
+            episode['sam_feats_static'] = np.stack(sam_feats_static).transpose(0, 2, 1)
+            episode['sam_feats_gripper'] = np.stack(sam_feats_gripper).transpose(0, 2, 1)
 
             ################### from episode #######################
 
 
             # lhs: 注意，存的时候是把[B,C,H,W]弄成了[B,C,HW]存的，所以token维度在后面，这里保持和dino feature一致
-            episode['sam_feats_static'] = episode['sam_static'].transpose(0, 2, 1)
-            episode['sam_feats_gripper'] = episode['sam_gripper'].transpose(0, 2, 1)
-            episode.pop('sam_static', None)
-            episode.pop('sam_gripper', None)
+            # episode['sam_feats_static'] = episode['sam_static'].transpose(0, 2, 1)
+            # episode['sam_feats_gripper'] = episode['sam_gripper'].transpose(0, 2, 1)
+            # episode.pop('sam_static', None)
+            # episode.pop('sam_gripper', None)
 
         # if time.time()-start_time > 0.3:
             # print("sam_time", time.time()-start_time)
         # lhs: cotracker label
         # start_time = time.time()
-        
-        
-        # if self.load_track_labels:
-        #     # rgb static
-        #     _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-        #     track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
-        #     track_keys = ['tracks', 'visibility']           
-        #     tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
+        if self.load_track_labels:
+            # rgb static
+            _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
+            track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
+            # track_labels = [self._safe_load_npz_key(
+            track_keys = ['tracks', 'visibility']           
+            tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
             
-        #     # rgb gripper
-        #     _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-        #     track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
-        #     track_keys = ['tracks', 'visibility']
-        #     _tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
-        #     tracks_gripper = {}
-        #     for k, v in _tracks.items():
-        #         tracks_gripper[k+"_gripper"] = v
+            # rgb gripper
+            _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
+            track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
+            track_keys = ['tracks', 'visibility']
+            _tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
+            tracks_gripper = {}
+            for k, v in _tracks.items():
+                tracks_gripper[k+"_gripper"] = v
 
-        #     episode = {**episode, **tracks, **tracks_gripper}
-        
-        
+            episode = {**episode, **tracks, **tracks_gripper}
         # if time.time()-start_time > 0.1:
             # print("traj_time", time.time()-start_time)
         return episode
 
+
+
+    def _safe_load_npz_key(self, path, key, retries=3, sleep=0.05):
+        last = None
+        for _ in range(retries):
+            try:
+                with np.load(path) as z:      # 关键：即开即读即关
+                    return z[key]
+            except (zipfile.BadZipFile, zlib.error, OSError, ValueError) as e:
+                last = e
+                time.sleep(sleep)
+        raise RuntimeError(f"[CORRUPT] path={path}, key={key}, err={last}")
+
+    
+    
     def _build_file_indices_lang(
         self, # abs_datasets_dir: Path
     ):
@@ -1290,7 +1298,7 @@ class DiskCalvinDataset(BaseCalvinDataset):
                 cnt += 1
 
         return np.array(episode_lookup), lang_lookup, lang_ann, lang_task
-
+    
     def _build_file_indices(self) -> np.ndarray:
         """
         This method builds the mapping from index to file_name used for loading the episodes of the non language
@@ -2171,6 +2179,13 @@ class BaseLiberoDataset(Dataset):
         **kwargs: Any,
     ):
         super().__init__()
+
+        self.load_dino_features = kwargs.get('load_dino_features', False)
+        self.dino_features_path = kwargs.get('dino_features_path', None)
+        self.load_sam_features = kwargs.get('load_sam_features', False)
+        self.sam_features_path = kwargs.get('sam_features_path', None)
+        self.load_track_labels = kwargs.get('load_track_labels', False)
+        self.track_label_path = kwargs.get('track_label_path', None)
         
         self.dataset_name = dataset_name
         self.dataset_info = dataset_info
@@ -2202,6 +2217,8 @@ class BaseLiberoDataset(Dataset):
         self.act_step = act_step
         logger.info(f"loading dataset at {root_dir}/{dataset_name}")
         logger.info("finished loading dataset")
+        print(f"loading dataset at {root_dir}/{dataset_name}")
+        print("finished loading dataset")
         assert os.path.exists(f"./data_info/{self.dataset_info}.json")
         with open(f"./data_info/{self.dataset_info}.json", 'r') as f:
             self.episode_info_list = json.load(f)
@@ -2244,6 +2261,72 @@ class BaseLiberoDataset(Dataset):
         # shape: N_rgb_obs x (BxHxWxC)
 
         return {"rgb_obs": seq_rgb_obs_dict}
+    
+    def process_features(
+        self,
+        episode: Dict[str, np.ndarray],
+        observation_space: DictConfig,
+        transforms: Dict,
+        seq_idx: int = 0,
+        window_size: int = 0,
+        obs_key: str = 'dino_features_obs'
+    ) -> Dict[str, Dict[str, torch.Tensor]]:
+        obs_space = {
+            "dino_features_obs": ['dino_feats_static', 'dino_feats_gripper'],
+            "sam_features_obs": ['sam_feats_static', 'sam_feats_gripper']
+        }
+        rgb_obs_keys = obs_space[obs_key]
+        seq_rgb_obs_dict = {}
+        for _, rgb_obs_key in enumerate(rgb_obs_keys):
+            rgb_obs = episode[rgb_obs_key]
+            # expand dims for single environment obs
+            if len(rgb_obs.shape) != 3:
+                rgb_obs = np.expand_dims(rgb_obs, axis=0)
+            assert len(rgb_obs.shape) == 3
+            if window_size == 0 and seq_idx == 0:  # single file loader
+                # To Square image
+                seq_rgb_obs_ = torch.from_numpy(rgb_obs).float()
+            else:  # episode loader
+                seq_rgb_obs_ = torch.from_numpy(
+                    rgb_obs[seq_idx : seq_idx + window_size]
+                ).float()
+            
+            #if rgb_obs_key in transforms:
+            #    seq_rgb_obs_ = transforms[rgb_obs_key](seq_rgb_obs_)
+            seq_rgb_obs_dict[rgb_obs_key] = seq_rgb_obs_
+        # shape: N_rgb_obs x (BxHxWxC)
+        return {obs_key: seq_rgb_obs_dict}
+    
+    def process_track_label(
+        self,
+        episode: Dict[str, np.ndarray],
+        seq_idx: int = 0,
+        window_size: int = 0,
+    ) -> Dict[str, Dict[str, torch.Tensor]]:
+        seq_track_label_dict = {}
+        tracks = episode['tracks'] # [Nframe, Npoints, 2]
+        visibility = episode['visibility'] # [Nframe, Npoints]
+        if window_size == 0 and seq_idx == 0:
+            tracks = torch.from_numpy(tracks)
+            visibility = torch.from_numpy(visibility)
+        else:
+            tracks = torch.from_numpy(tracks[seq_idx : seq_idx + window_size])
+            visibility = torch.from_numpy(visibility[seq_idx : seq_idx + window_size])
+
+        tracks_gripper = episode['tracks_gripper'] # [Nframe, Npoints, 2]
+        visibility_gripper = episode['visibility_gripper'] # [Nframe, Npoints]
+        if window_size == 0 and seq_idx == 0:
+            tracks_gripper = torch.from_numpy(tracks_gripper)
+            visibility_gripper = torch.from_numpy(visibility_gripper)
+        else:
+            tracks_gripper = torch.from_numpy(tracks_gripper[seq_idx : seq_idx + window_size])
+            visibility_gripper = torch.from_numpy(visibility_gripper[seq_idx : seq_idx + window_size])
+
+        seq_track_label_dict['tracks'] = tracks
+        seq_track_label_dict['track_visibility'] = visibility
+        seq_track_label_dict['tracks_gripper'] = tracks_gripper
+        seq_track_label_dict['track_visibility_gripper'] = visibility_gripper
+        return {"track_label": seq_track_label_dict}
 
     def _get_pad_size(self, sequence: Dict) -> int:
         """
@@ -2335,6 +2418,33 @@ class BaseLiberoDataset(Dataset):
                 }
             }
         )
+        if 'track_label' in seq:
+            seq.update(
+                {
+                    "track_label": {
+                        k: self._pad_with_repetition(v, pad_size, head)
+                        for k, v in seq["track_label"].items()
+                    }
+                }
+            )
+        if 'dino_features_obs' in seq:
+            seq.update(
+                {
+                    "dino_features_obs": {
+                        k: self._pad_with_repetition(v, pad_size, head)
+                        for k, v in seq["dino_features_obs"].items()
+                    }
+                }
+            )
+        if 'sam_features_obs' in seq:
+            seq.update(
+                {
+                    "sam_features_obs": {
+                        k: self._pad_with_repetition(v, pad_size, head)
+                        for k, v in seq["sam_features_obs"].items()
+                    }
+                }
+            )
         #  todo: find better way of distinguishing rk and play action spaces
         if not self.relative_actions:
             if head:
@@ -2423,6 +2533,27 @@ class BaseLiberoDataset(Dataset):
         end_id = min(start_id + window_size, num_step_per_episode)
         episode_id = self.episode_list[episode_id]
         episodes = []
+
+        # load dino, sam, depth, traj...
+        # if self.load_dino_features:
+        #     dino_path = f"{self.dataset_path}/dinov2_feats/{episode_id}.pt"
+        #     dino_data = torch.load(dino_path)
+        # if self.load_sam_features:
+        #     sam_path = f"{self.dataset_path}/sam_feats/{episode_id}.pt"
+        #     sam_data = torch.load(sam_path)
+        # if self.load_track_labels:
+        #     track_path_p = f"{self.dataset_path}/cotracker_traj/{episode_id}_image_primary.npz"
+        #     track_path_w = f"{self.dataset_path}/cotracker_traj/{episode_id}_image_wrist.npz"
+        #     track_data_p = np.load(track_path_p)
+        #     track_data_w = np.load(track_path_w)
+        if self.load_dino_features:
+            self.observation_space['dino_feats'] = ['dino_feats_static', 'dino_feats_gripper']
+        if self.load_sam_features:
+            self.observation_space['sam_feats'] = ['sam_feats_static', 'sam_feats_gripper']
+        if self.load_track_labels:
+            self.observation_space['cotracker_traj'] = ['tracks', 'visibility', 'tracks_gripper', 'visibility_gripper']
+        # print(self.dataset_path)
+                
         for step_id in range(start_id, end_id):
             data_dict = {}
             str_step_id = str(step_id).zfill(4)
@@ -2434,11 +2565,49 @@ class BaseLiberoDataset(Dataset):
             data_dict["rel_actions"] = self.load_action(other_file)
             data_dict["robot_obs"] = self.load_robot_obs(other_file)
             data_dict["scene_obs"] = self.load_scene_obs(episode_id, str_step_id)
+            
+            if self.load_dino_features:
+                data_dict["dino_feats_static"] = np.load(os.path.join(f"{self.dataset_path}/dinov2_feats/{episode_id}/steps/{str_step_id}/image_primary.npy"))
+                data_dict["dino_feats_gripper"] = np.load(os.path.join(f"{self.dataset_path}/dinov2_feats/{episode_id}/steps/{str_step_id}/image_wrist.npy"))
+            if self.load_sam_features:
+                data_dict["sam_feats_static"] = np.load(os.path.join(f"{self.dataset_path}/sam_feats/{episode_id}/steps/{str_step_id}/image_primary.npy"))
+                data_dict["sam_feats_gripper"] = np.load(os.path.join(f"{self.dataset_path}/sam_feats/{episode_id}/steps/{str_step_id}/image_wrist.npy"))
+            if self.load_track_labels:
+                static_track_info = np.load(os.path.join(f"{self.dataset_path}/cotracker_traj/{episode_id}/steps/{str_step_id}/image_primary.npz"))
+                data_dict["tracks"] = static_track_info['tracks']
+                data_dict["visibility"] = static_track_info['visibility']
+                
+                gripper_track_info = np.load(os.path.join(f"{self.dataset_path}/cotracker_traj/{episode_id}/steps/{str_step_id}/image_wrist.npz"))
+                data_dict["tracks_gripper"] = gripper_track_info['tracks']
+                data_dict["visibility_gripper"] = gripper_track_info['visibility']
+                
             episodes.append(data_dict)
+
+        self.observation_space['depth_obs'] = []
         keys = list(chain(*self.observation_space.values()))
         keys.remove("language")
         keys.append("scene_obs")
         episode = {key: np.stack([ep[key] for ep in episodes]) for key in keys}
+        
+        if self.load_sam_features:
+            episode["sam_feats_static"] = episode["sam_feats_static"].transpose(0, 2, 1)
+            episode["sam_feats_gripper"] = episode["sam_feats_gripper"].transpose(0, 2, 1)
+
+        # if self.load_dino_features:
+        #     seq_length = dino_data.shape[0]
+        #     episode["dino_feats_static"] = dino_data[start_id:end_id].to(torch.float32).numpy()
+        #     episode["dino_feats_gripper"] = dino_data[start_id+seq_length//2:end_id+seq_length//2].to(torch.float32).numpy()
+        # if self.load_sam_features:
+        #     seq_length = sam_data.shape[0]
+        #     # lhs: 注意，存的时候是把[B,C,H,W]弄成了[B,C,HW]存的，所以token维度在后面，这里保持和dino feature一致
+        #     episode["sam_feats_static"] = sam_data[start_id:end_id].to(torch.float32).numpy().transpose(0, 2, 1)
+        #     episode["sam_feats_gripper"] = sam_data[start_id+seq_length//2:end_id+seq_length//2].to(torch.float32).numpy().transpose(0, 2, 1)
+        # if self.load_track_labels:
+        #     episode["tracks"] = track_data_p['tracks'][start_id:end_id]
+        #     episode["visibility"] = track_data_p['visibility'][start_id:end_id]
+        #     episode["tracks_gripper"] = track_data_w['tracks'][start_id:end_id]
+        #     episode["visibility_gripper"] = track_data_w['visibility'][start_id:end_id]
+
         episode["language"] = self.load_language_instruction(other_file, self.language_mode)
         seq_state_obs = process_state(
             episode, self.observation_space, self.transforms, self.proprio_state
@@ -2446,6 +2615,15 @@ class BaseLiberoDataset(Dataset):
         seq_rgb_obs = self.process_rgb(episode, self.observation_space, self.transforms)
         seq_depth_obs = process_depth(episode, self.observation_space, self.transforms)
         seq_acts = process_actions(episode, self.observation_space, self.transforms)
+        if self.load_dino_features:
+            seq_dino_obs = self.process_features(episode, self.observation_space, self.transforms, obs_key='dino_features_obs')
+            # seq_dino_obs = dict()
+        if self.load_sam_features:
+            seq_sam_obs = self.process_features(episode, self.observation_space, self.transforms, obs_key='sam_features_obs')
+            # seq_sam_obs = dict()
+        seq_acts = process_actions(episode, self.observation_space, self.transforms)
+        if self.load_track_labels:
+            seq_track_label = self.process_track_label(episode)
         info = get_state_info_dict(episode)
         info["use_for_aux_lang_loss"] = False
         seq_lang = self.process_language(episode, self.transforms, self.with_lang)
@@ -2456,6 +2634,9 @@ class BaseLiberoDataset(Dataset):
             **seq_acts,
             **info,
             **seq_lang,
+            **(seq_track_label if self.load_track_labels else dict()),
+            **(seq_dino_obs if self.load_dino_features else dict()),
+            **(seq_sam_obs if self.load_sam_features else dict()),
         }  
         seq_dict["idx"] = idx  
         seq_dict["episode_id"] = episode_id
@@ -2464,7 +2645,8 @@ class BaseLiberoDataset(Dataset):
 
     def load_primary_rgb(self, episode_id, step_id, primary_mode="image_primary"):
         image_primary_path = f'{self.dataset_path}/episodes/{episode_id}/steps/{step_id}/{primary_mode}.jpg'
-        image_primary = np.array(Image.open(image_primary_path).convert("RGB"))
+        # lhs: libero的primary是反的
+        image_primary = np.array(Image.open(image_primary_path).convert("RGB"))[::-1].copy()
 
         return image_primary.astype(np.uint8)
 
@@ -2595,6 +2777,24 @@ class DiskLiberoDataset(Dataset):
         stacked_language = [s["lang"] for s in sample]
         episode_id = [s["episode_id"] for s in sample]
         text_tensors = self.text_fn(stacked_language)
+        
+        if 'track_label' in sample[0]:
+            track_tensors = torch.stack([s["track_label"]["tracks"] for s in sample])
+            track_vis_tensors = torch.stack([s["track_label"]["track_visibility"] for s in sample])
+            track_gripper_tensors = torch.stack([s["track_label"]["tracks_gripper"] for s in sample])
+            track_vis_gripper_tensors = torch.stack([s["track_label"]["track_visibility_gripper"] for s in sample])
+        
+        dino_features_tensors = None
+        dino_features_gripper_tensors = None
+        sam_features_tensors = None
+        sam_features_gripper_tensors = None
+        if 'dino_features_obs' in sample[0]:
+            dino_features_tensors = torch.stack([s["dino_features_obs"]["dino_feats_static"] for s in sample])
+            dino_features_gripper_tensors = torch.stack([s["dino_features_obs"]["dino_feats_gripper"] for s in sample])
+
+        if 'sam_features_obs' in sample[0]:
+            sam_features_tensors = torch.stack([s["sam_features_obs"]["sam_feats_static"] for s in sample])
+            sam_features_gripper_tensors = torch.stack([s["sam_features_obs"]["sam_feats_gripper"] for s in sample])
 
         if self.rgb_pad != -1:
             bs, seq_len = image_tensors.shape[:2]
@@ -2632,8 +2832,23 @@ class DiskLiberoDataset(Dataset):
             image_tensors = image_tensors[:, :-(self.act_step-1)]
             gripper_tensors = gripper_tensors[:, :-(self.act_step-1)]
             state_tensors = state_tensors[:, :-(self.act_step-1)]
-
-        return image_tensors, text_tensors, action_tensors, gripper_tensors, state_tensors, robot_obs 
+            
+            if 'track_label' in sample[0]:
+                track_tensors = track_tensors[:, :-(self.act_step-1)]
+                track_vis_tensors = track_vis_tensors[:, :-(self.act_step-1)]
+                track_gripper_tensors = track_gripper_tensors[:, :-(self.act_step-1)]
+                track_vis_gripper_tensors = track_vis_gripper_tensors[:, :-(self.act_step-1)]
+            if 'dino_features_obs' in sample[0]:
+                dino_features_tensors = dino_features_tensors[:, :-(self.act_step-1)]
+                dino_features_gripper_tensors = dino_features_gripper_tensors[:, :-(self.act_step-1)]
+            if 'sam_features_obs' in sample[0]:
+                sam_features_tensors = sam_features_tensors[:, :-(self.act_step-1)]
+                sam_features_gripper_tensors = sam_features_gripper_tensors[:, :-(self.act_step-1)]
+            
+        depth_static_tensors = None
+        depth_gripper_tensors = None
+        return image_tensors, text_tensors, action_tensors, gripper_tensors, state_tensors, robot_obs, depth_static_tensors, depth_gripper_tensors, dino_features_tensors, dino_features_gripper_tensors, sam_features_tensors, sam_features_gripper_tensors, \
+        dict(tracks=track_tensors, track_visibility=track_vis_tensors, tracks_gripper=track_gripper_tensors, track_visibility_gripper=track_vis_gripper_tensors) if ('track_label' in sample[0]) else dict(),
 
 def get_libero_pretrain_dataset(args, image_processor, tokenizer, epoch=0, floor=False):
     dataset_names = ["libero_90_converted"]
@@ -2664,6 +2879,13 @@ def get_libero_pretrain_dataset(args, image_processor, tokenizer, epoch=0, floor
         dataset_info='libero_90_converted',
         gripper_width=args.gripper_width,
         load_libero_file=args.load_libero_file,
+        
+        load_track_labels=args.load_track_labels,
+        track_label_path=args.track_label_path,
+        load_dino_features=args.load_dino_features,
+        dino_features_path=args.dino_features_path,
+        load_sam_features=args.load_sam_features,
+        sam_features_path=args.sam_features_path
     )
     round_fn = math.floor if floor else math.ceil
     num_samples = len(libero_dataset)
@@ -2698,7 +2920,8 @@ def get_libero_pretrain_dataset(args, image_processor, tokenizer, epoch=0, floor
     return DataInfo(dataloader=dataloader, shared_epoch=shared_epoch, sampler=sampler, dataset=libero_dataset)
 
 def get_libero_finetune_dataset(args, image_processor, tokenizer, epoch=0, floor=False):
-    dataset_names = ["libero_10_converted"]
+    # dataset_names = ["libero_10_converted"]
+    dataset_names = [args.libero_path]
     shared_epoch = SharedEpoch(epoch=epoch)
     preprocess_image_fn = functools.partial(
         preprocess_image, image_processor=image_processor
@@ -2723,9 +2946,17 @@ def get_libero_finetune_dataset(args, image_processor, tokenizer, epoch=0, floor
         max_window_size=args.max_window_size,
         primary_mode=args.primary_mode,
         small_size=args.small_size,
-        dataset_info='libero_10_converted',
+        # dataset_info='libero_10_converted',
+        dataset_info=args.libero_path,
         gripper_width=args.gripper_width,
         load_libero_file=args.load_libero_file,
+        
+        load_track_labels=args.load_track_labels,
+        track_label_path=args.track_label_path,
+        load_dino_features=args.load_dino_features,
+        dino_features_path=args.dino_features_path,
+        load_sam_features=args.load_sam_features,
+        sam_features_path=args.sam_features_path
     )
     round_fn = math.floor if floor else math.ceil
     num_samples = len(libero_dataset)
