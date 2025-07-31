@@ -145,7 +145,6 @@ class DreamVLA(nn.Module):
         transformer_heads=12,
         phase="",
         gripper_width=False,
-        
         pred_num = 1, 
         depth_pred=False,
         trajectory_pred=False,
@@ -672,7 +671,7 @@ class DreamVLA(nn.Module):
             if not self.use_dinosiglip:
                 image_primary_feature, _, _ = self.vision_encoder.forward_encoder(image_primary.flatten(0, 1), mask_ratio=0.0)
                 image_wrist_feature, _, _ = self.vision_encoder.forward_encoder(image_wrist.flatten(0, 1), mask_ratio=0.0)
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
             else:
                 # import pdb; pdb.set_trace()
                 dino_primary_feature = self.dino_featurizer(image_primary.flatten(0, 1), return_prefix_tokens=True)
