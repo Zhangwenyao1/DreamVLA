@@ -2,7 +2,7 @@
 
 **(1) Conda Env**
 ```
-conda create -n dreamvla python=3.10
+conda create -n dreamvla python=3.8
 conda activate dreamvla
 ```
 
@@ -24,14 +24,14 @@ sh download_data.sh ABC
 
 **(4) Third Party Packages**
 ```
-cd ${YOUR_PATH_TO_SEER}
+cd ${YOUR_PATH_TO_DreamVLA}
 pip install -r requirements.txt
 pip install torch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cu121
 ```
 
 **(5) Create a soft link to CALVIN**
 ```
-cd ${YOUR_PATH_TO_SEER}
+cd ${YOUR_PATH_TO_DreamVLA}
 ln -s $CALVIN_ROOT calvin
 ```
 

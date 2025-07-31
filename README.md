@@ -67,29 +67,8 @@ DreamVLA: Vision-Language-Action Models Dream Comprehensive World Knowledge -->
     <img src="assets/pipeline.gif" width=100% >
 </div>
 
-# 
 
-
-# Table of Contents:
-1. [Installaton](#installation)
-2. [Data Processing](#data)
-3. [Training](#training)
-4. [Evaluation](#evaluation)
-5. [License](#license)
-6. [Citation](#citation).
-7. [Acknowledgment](#acknowledgment)
-
-
-# Installation
-
-### Create an anaconda environment
-
-```
-conda create -n dreamvla python=3.8
-conda activate dreamvla
-```
-
-### Clone this repo
+## Clone this repo
 
 ```
 git clone https://github.com/Zhangwenyao1/DreamVLA
@@ -98,72 +77,18 @@ git clone https://github.com/Zhangwenyao1/DreamVLA
 This repository's code is based on the [Seer](https://github.com/OpenRobotLab/Seer/tree/main).
 
 
-### Install for CALVIN
+## Run on Benchmark
 
+#### CALVIN ABC-D <a name="calvin abc-d"></a>
 - [Installation](docs/CALVIN_ABC-D_INSTALL.md)
 - [Running Code](docs/CALVIN_ABC-D_RUN.md)
+#### LIBERO <a name="libero"></a>
+- [Installation](docs/LIBERO_INSTALL.md)
+- [Running Code](docs/LIBERO_RUN.md)
 
 
-# Data Processing
-
-Note: there is potential problem that ```Use .reshape(...) instead.```, just change it.
-
-### Dynamic Region:  
-Install [co-tracker](https://github.com/facebookresearch/co-tracker.git). Note download the [checkpoints of co-tracker](https://huggingface.co/facebook/cotracker3/blob/main/scaled_offline.pth) and put it to ```./co-tracker/checkpoints```
-```.
-mv ./data_process/cotrack_extractor.py ./co-tracker/
-cd co-tracker
-python cotrack_extractor.py
-```
-
-### SAM Feature: 
-Install [SAM](https://github.com/facebookresearch/segment-anything). Note download the [checkpoints of SAM](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) and put it to ```./segment-anything/ckpts```.
-```
-cp dist_utils.py ./segment-anything/
-mv ./data_info/ep_start_end_ids.npy <your_data_path>
-mv ./data_process/sam_extractor.py ./segment-anything/
-cd segment-anything
-python sam_extractor.py
-```
-
-### DINOv2 Feature: 
-
-Install [DINOV2](https://github.com/facebookresearch/dinov2). Note download the [checkpoints of dinov2]( https://huggingface.co/junjiexv/dinov2_vit/blob/main/dinov2_vits14_pretrain.pth) and put it to ```./dinov2/ckpts```.
-```
-cp dist_utils.py ./dinov2/
-mv ./data_process/dino_extractor.py ./dinov2/
-cd dinov2
-python dino_extractor.py
-```
-If you want to finetune our model, ```python dino_extractor.py``` is must to run.
-
-Merge all data and raw calvin dataset to produce the new dataset
-```
-python ./data_process/merge_sam_dino.py # merge sam and dino feature into new dataset
-python ./data_process/merge_track.py # merge optical flow into new dataset
-```
-
-
-# Training
-Note: you need to change the detail of the *.sh in ```./scripts/CALVIN_ABC_D/DreamVLA/```. Moreover, if you use less than 8 gpus, plase change the *node_num* in *.sh.
-
-### Pretrain:
-```
-bash ./scripts/CALVIN_ABC_D/DreamVLA/pretrain.sh
-```
-
-### Finetune:
-```
-bash ./scripts/CALVIN_ABC_D/DreamVLA/finetune.sh
-```
-
-
-# Evaluation
-
-Down load our [checkpoint](https://drive.google.com/drive/folders/1P1fA2vTUF-lsrrWyNvDSWE1ATTHbQQ9T?usp=drive_link) and create ```checkpoints/```. Then put it into the file.
-```
-bash ./scripts/CALVIN_ABC_D/DreamVLA/eval.sh
-```
+## TODO
+- [ ] Release the code with LIBERO 
 
 
 
