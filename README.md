@@ -77,7 +77,7 @@ git clone https://github.com/Zhangwenyao1/DreamVLA
 This repository's code is based on the [Seer](https://github.com/OpenRobotLab/Seer/tree/main).
 
 
-## Run on Benchmark
+## Running on the Benchmark
 
 #### CALVIN ABC-D <a name="calvin abc-d"></a>
 - [Installation](docs/CALVIN_ABC-D_INSTALL.md)
@@ -88,7 +88,7 @@ This repository's code is based on the [Seer](https://github.com/OpenRobotLab/Se
 
 
 ## TODO
-- [ ] Release the code with LIBERO 
+- [x] Release the code with LIBERO 
 
 
 
