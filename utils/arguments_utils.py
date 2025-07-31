@@ -259,6 +259,8 @@ def get_parser(is_eval=False):
     parser.add_argument("--dino_features_path", type=str, default=None)
     parser.add_argument("--load_sam_features", default=False, action="store_true")
     parser.add_argument("--sam_features_path", type=str, default=None)
+    parser.add_argument("--merge_data", default=False, action="store_true")
+    
     # gpt2
     parser.add_argument("--transformer_layers", default=12, type=int)
     parser.add_argument("--hidden_dim", default=384, type=int)
