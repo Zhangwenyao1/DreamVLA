@@ -1,5 +1,5 @@
-finetune_from_pretrained_ckpt="pretrian_weight_path"
-calvin_dataset_path="" # your data path
+finetune_from_pretrained_ckpt="/inspire/hdd/project/robotsimulation/guchun-240107140023/Wenyao/seer_pretrain.pth"
+calvin_dataset_path="/inspire/hdd/global_user/guchun-240107140023/task_ABC_D/" # your data path
 save_checkpoint_path="./checkpoints/"
 vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 
@@ -26,7 +26,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10215 train
     --weight_decay 1e-4 \
     --num_resampler_query 16 \
     --num_obs_token_per_image 9 \
-    --run_name finetune_dreamvla_calvin_abc_d_flow_as_mask_depth \
+    --run_name finetune_dreamvla_calvin_abc_d_nodino \
     --save_checkpoint \
     --save_checkpoint_path ${save_checkpoint_path} \
     --transformer_layers 24 \
@@ -43,13 +43,13 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10215 train
     --loss_image \
     --loss_action \
     --loss_depth \
+    --track_label_patch_size 8 \
+    --load_track_labels \
+    --track_label_path "/inspire/ssd/project/robotsimulation/guchun-240107140023/Wenyao/calvin_dense_k10/task_ABC_D" \
     --loss_sam_feat \
     --sam_feat_pred \
     --load_sam_features \
-    --sam_feat_path "your_sam_feature_data_path" \
-    --track_label_patch_size 8 \
-    --load_track_labels \
-    --track_label_path "your_trajectory_data_path" \
+    --sam_features_path "/inspire/hdd/project/robotsimulation/guchun-240107140023/Wenyao/DreamVLA/segment-anything/calvin_sam/" \
     --flow_as_mask \
     --attn_implementation "sdpa" \
     --reset_obs_token \
