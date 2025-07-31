@@ -4,15 +4,13 @@ eval "$__conda_setup"
 conda activate dreamvla
 export WANDB_MODE=offline
 
-# pthlist=("30" "31" "32" "33" "34" "35" "36" "37" "38" "39")
-pthlist=("26" "27" "28" "29")
+pthlist=("26" "27" "28" "29" "30" "31" "32" "33" "34" "35" "36" "37" "38" "39")
 for ckpt_id in "${pthlist[@]}"; do
     resume_from_checkpoint=$1
-    vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth"
+    vit_checkpoint_path=""
     this_resume_from_checkpoint="${resume_from_checkpoint}/${ckpt_id}.pth"
-    save_checkpoint_path="checkpoints/finetune_DreamVLA_small_libero/eval"
     dirname=$(basename "$resume_from_checkpoint")
-    LOG_DIR="./eval/${dirname}"
+    LOG_DIR="./eval_libero/${dirname}"
     mkdir -p ${LOG_DIR}
     test_id="${ckpt_id}"
     logfile="${LOG_DIR}/${test_id}.log"
@@ -33,16 +31,17 @@ for ckpt_id in "${pthlist[@]}"; do
         --lr_scheduler cosine \
         --save_every_iter 50000 \
         --num_epochs 20 \
-        --seed 42 \
+        --seed 66 \
         --batch_size 64 \
         --precision fp32 \
         --weight_decay 1e-4 \
-        --num_resampler_query 6 \
+        --num_resampler_query 16 \
         --run_name test \
         --transformer_layers 24 \
+        --hidden_dim 1024 \
+        --transformer_heads 16 \
         --phase "evaluate" \
-        --finetune_type ${2:-"libero_10"} \
-        --save_checkpoint_path ${save_checkpoint_path} \
+        --finetune_type libero_spatial \
         --action_pred_steps 3 \
         --future_steps 3 \
         --sequence_length 7 \
@@ -55,6 +54,6 @@ for ckpt_id in "${pthlist[@]}"; do
         --sam_feat_pred \
         --loss_sam_feat \
         --flow_as_mask \
-        --attn_implementation \
+        --attn_implementation "sdpa" \
         --resume_from_checkpoint ${this_resume_from_checkpoint} | tee ${logfile}
 done

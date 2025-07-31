@@ -2,7 +2,7 @@
 ### NEED TO CHANGE ###
 save_checkpoint_path="checkpoints/pretrain_DreamVLA_libero/"
 root_dir='.'
-vit_checkpoint_path="checkpoints/vit_mae/mae_pretrain_vit_base.pth" #  # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
+vit_checkpoint_path="checkpoints/mae_pretrain_vit_base.pth" # downloaded from https://drive.google.com/file/d/1bSsvRI4mDM3Gg51C6xO0l9CbojYw3OEt/view?usp=sharing
 libero_path="libero_90_converted"
 ### NEED TO CHANGE ###
 calvin_dataset_path="" # change to your data path
@@ -27,7 +27,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10211 train
     --save_checkpoint \
     --finetune_type libero_pretrain \
     --root_dir ${root_dir} \
-    --wandb_project seer \
+    --wandb_project dreamvla \
     --weight_decay 1e-4 \
     --num_resampler_query 16 \
     --num_obs_token_per_image 9 \
