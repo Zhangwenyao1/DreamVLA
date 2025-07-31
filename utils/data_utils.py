@@ -1059,19 +1059,19 @@ class DiskCalvinDataset(BaseCalvinDataset):
         keys = list(chain(*self.observation_space.values()))
         keys.remove("language")
         keys.append("scene_obs")
-        # if self.load_dino_features:
-        #     keys.append("dino_static")
-        #     keys.append("dino_gripper")
-        # if self.load_sam_features:
-        #     keys.append("sam_static")
-        #     keys.append("sam_gripper")
-        # episodes = [
-        #     self.load_file(self._get_episode_name(file_idx))
-        #     for file_idx in range(start_idx, end_idx)
-        # ]
-        episode_names = [self._get_episode_name(file_idx) for file_idx in range(start_idx, end_idx)]
-        with ThreadPoolExecutor(max_workers=16) as executor:
-            episodes = list(executor.map(self.load_file, episode_names))
+        if self.load_dino_features:
+            keys.append("dino_static")
+            keys.append("dino_gripper")
+        if self.load_sam_features:
+            keys.append("sam_static")
+            keys.append("sam_gripper")
+        episodes = [
+            self.load_file(self._get_episode_name(file_idx))
+            for file_idx in range(start_idx, end_idx)
+        ]
+        # episode_names = [self._get_episode_name(file_idx) for file_idx in range(start_idx, end_idx)]
+        # with ThreadPoolExecutor(max_workers=16) as executor:
+        #     episodes = list(executor.map(self.load_file, episode_names))
 
         episode = {key: np.stack([ep[key] for ep in episodes]) for key in keys}
         if self.with_lang:
@@ -1084,24 +1084,24 @@ class DiskCalvinDataset(BaseCalvinDataset):
         # lhs: dino & sam features
         # start_time = time.time()
         if self.load_dino_features:
-            assert self.dino_features_path is not None
-            if self.cache_static is None:
-                ################### vanilla #######################
-                dino_feats_static = []
-                dino_feats_gripper = []
-                for file_idx in range(start_idx, end_idx):
-                    feat_static = (torch.load(os.path.join(self.dino_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-                    dino_feats_static.append(feat_static)
-                    feat_gripper = (torch.load(os.path.join(self.dino_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-                    dino_feats_gripper.append(feat_gripper)   
-                self.cache_gripper = dino_feats_gripper
-                episode['dino_feats_static'] = np.stack(dino_feats_static)
-                self.cache_static = episode['dino_feats_static']
-                episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
-                self.cache_gripper =  episode['dino_feats_gripper']
-            else:
-                episode['dino_feats_static'] = self.cache_static 
-                episode['dino_feats_gripper'] = self.cache_gripper 
+            # assert self.dino_features_path is not None
+            # if self.cache_static is None:
+            #     ################### vanilla #######################
+            #     dino_feats_static = []
+            #     dino_feats_gripper = []
+            #     for file_idx in range(start_idx, end_idx):
+            #         feat_static = (torch.load(os.path.join(self.dino_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+            #         dino_feats_static.append(feat_static)
+            #         feat_gripper = (torch.load(os.path.join(self.dino_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+            #         dino_feats_gripper.append(feat_gripper)   
+            #     self.cache_gripper = dino_feats_gripper
+            #     episode['dino_feats_static'] = np.stack(dino_feats_static)
+            #     self.cache_static = episode['dino_feats_static']
+            #     episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
+            #     self.cache_gripper =  episode['dino_feats_gripper']
+            # else:
+            #     episode['dino_feats_static'] = self.cache_static 
+            #     episode['dino_feats_gripper'] = self.cache_gripper 
 
             ################## multithread #######################
 #             _func = partial(self._load_dino_feat, img_key='rgb_static')
@@ -1141,25 +1141,25 @@ class DiskCalvinDataset(BaseCalvinDataset):
             #         dino_feats_gripper.append(data.to(torch.float32).numpy())
 
             ################### from episode #######################
-            # episode['dino_feats_static'] = episode['dino_static']
-            # episode['dino_feats_gripper'] = episode['dino_gripper']
-            # episode.pop('dino_static', None)
-            # episode.pop('dino_gripper', None)
+            episode['dino_feats_static'] = episode['dino_static']
+            episode['dino_feats_gripper'] = episode['dino_gripper']
+            episode.pop('dino_static', None)
+            episode.pop('dino_gripper', None)
 
 
         # if time.time()-start_time > 0.3:
             # print("dino_time", time.time()-start_time)
         # start_time = time.time()
         if self.load_sam_features:
-            sam_feats_static = []
-            sam_feats_gripper = []
-            assert self.sam_features_path is not None
+            # sam_feats_static = []
+            # sam_feats_gripper = []
+            # assert self.sam_features_path is not None
             ################### vanilla #######################
-            for file_idx in range(start_idx, end_idx):
-                feat_static = (torch.load(os.path.join(self.sam_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-                sam_feats_static.append(feat_static)
-                feat_gripper = (torch.load(os.path.join(self.sam_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-                sam_feats_gripper.append(feat_gripper)
+            # for file_idx in range(start_idx, end_idx):
+            #     feat_static = (torch.load(os.path.join(self.sam_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+            #     sam_feats_static.append(feat_static)
+            #     feat_gripper = (torch.load(os.path.join(self.sam_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+            #     sam_feats_gripper.append(feat_gripper)
 
             ################## multithread #######################
 #             _func = partial(self._load_sam_feat, img_key='rgb_static')
@@ -1170,43 +1170,37 @@ class DiskCalvinDataset(BaseCalvinDataset):
 #             _func = partial(self._load_sam_feat, img_key='rgb_gripper')
 #             with ThreadPoolExecutor(max_workers=16) as executor:
 #                 sam_feats_gripper = list(executor.map(_func, _file_indices))
-            episode['sam_feats_static'] = np.stack(sam_feats_static).transpose(0, 2, 1)
-            episode['sam_feats_gripper'] = np.stack(sam_feats_gripper).transpose(0, 2, 1)
+            # episode['sam_feats_static'] = np.stack(sam_feats_static).transpose(0, 2, 1)
+            # episode['sam_feats_gripper'] = np.stack(sam_feats_gripper).transpose(0, 2, 1)
 
             ################### from episode #######################
 
 
-            # lhs: 注意，存的时候是把[B,C,H,W]弄成了[B,C,HW]存的，所以token维度在后面，这里保持和dino feature一致
-            # episode['sam_feats_static'] = episode['sam_static'].transpose(0, 2, 1)
-            # episode['sam_feats_gripper'] = episode['sam_gripper'].transpose(0, 2, 1)
-            # episode.pop('sam_static', None)
-            # episode.pop('sam_gripper', None)
+            episode['sam_feats_static'] = episode['sam_static'].transpose(0, 2, 1)
+            episode['sam_feats_gripper'] = episode['sam_gripper'].transpose(0, 2, 1)
+            episode.pop('sam_static', None)
+            episode.pop('sam_gripper', None)
 
-        # if time.time()-start_time > 0.3:
-            # print("sam_time", time.time()-start_time)
         # lhs: cotracker label
-        # start_time = time.time()
-        if self.load_track_labels:
-            # rgb static
-            _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-            track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
-            # track_labels = [self._safe_load_npz_key(
-            track_keys = ['tracks', 'visibility']           
-            tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
+        # if self.load_track_labels:
+        #     # rgb static
+        #     _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
+        #     track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
+        #     # track_labels = [self._safe_load_npz_key(
+        #     track_keys = ['tracks', 'visibility']           
+        #     tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
             
-            # rgb gripper
-            _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-            track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
-            track_keys = ['tracks', 'visibility']
-            _tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
-            tracks_gripper = {}
-            for k, v in _tracks.items():
-                tracks_gripper[k+"_gripper"] = v
+        #     # rgb gripper
+        #     _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
+        #     track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
+        #     track_keys = ['tracks', 'visibility']
+        #     _tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
+        #     tracks_gripper = {}
+        #     for k, v in _tracks.items():
+        #         tracks_gripper[k+"_gripper"] = v
 
-            episode = {**episode, **tracks, **tracks_gripper}
-        # if time.time()-start_time > 0.1:
-            # print("traj_time", time.time()-start_time)
-        return episode
+        #     episode = {**episode, **tracks, **tracks_gripper}
+        # return episode
 
 
 
