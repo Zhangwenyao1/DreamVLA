@@ -46,7 +46,7 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10215 train
     --loss_sam_feat \
     --sam_feat_pred \
     --load_sam_features \
-    --sam_feat_path "your_sam_feature_data_path" \
+    --sam_feature_path "your_sam_feature_data_path" \
     --track_label_patch_size 8 \
     --load_track_labels \
     --track_label_path "your_trajectory_data_path" \
