@@ -26,7 +26,6 @@ import json
 from itertools import chain
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
-import lmdb
 import numpy as np
 from PIL import Image
 import copy
@@ -439,6 +438,7 @@ class BaseCalvinDataset(Dataset):
         data_in_ceph=False,
         **kwargs: Any,
     ):
+        self.data_merge = kwargs.get('merge_data', False)
         self.load_dino_features = kwargs.get('load_dino_features', False)
         self.dino_features_path = kwargs.get('dino_features_path', None)
         self.load_sam_features = kwargs.get('load_sam_features', False)
@@ -571,17 +571,25 @@ class BaseCalvinDataset(Dataset):
         window_size: int = 0,
     ) -> Dict[str, Dict[str, torch.Tensor]]:
         seq_track_label_dict = {}
-        tracks = episode['tracks'] # [Nframe, Npoints, 2]
-        visibility = episode['visibility'] # [Nframe, Npoints]
+        if self.data_merge:
+            tracks = episode['traj_static'] # [Nframe, Npoints, 2]
+            visibility = episode['visibility_static'] # [Nframe, Npoints]
+        else:
+            tracks = episode['tracks'] # [Nframe, Npoints, 2]
+            visibility = episode['visibility'] # [Nframe, Npoints] 
         if window_size == 0 and seq_idx == 0:
             tracks = torch.from_numpy(tracks)
             visibility = torch.from_numpy(visibility)
         else:
             tracks = torch.from_numpy(tracks[seq_idx : seq_idx + window_size])
             visibility = torch.from_numpy(visibility[seq_idx : seq_idx + window_size])
-
-        tracks_gripper = episode['tracks_gripper'] # [Nframe, Npoints, 2]
-        visibility_gripper = episode['visibility_gripper'] # [Nframe, Npoints]
+            
+        if self.data_merge:
+            tracks_gripper = episode['traj_gripper'] # [Nframe, Npoints, 2]
+            visibility_gripper = episode['visibility_gripper'] # [Nframe, Npoints]
+        else:
+            tracks_gripper = episode['tracks_gripper'] # [Nframe, Npoints, 2]
+            visibility_gripper = episode['visibility_gripper'] # [Nframe, Npoints] 
         if window_size == 0 and seq_idx == 0:
             tracks_gripper = torch.from_numpy(tracks_gripper)
             visibility_gripper = torch.from_numpy(visibility_gripper)
@@ -990,21 +998,6 @@ class DiskCalvinDataset(BaseCalvinDataset):
         self.cache_gripper = None
         # self._open_envs()
 
-    # def _open_envs(self):
-    #     import lmdb
-    #     self.dino_static_env = lmdb.open('calvin_dino_static_training.lmdb', readonly=True, lock=False, readahead=False, max_readers=32)
-    #     self.dino_gripper_env = lmdb.open('calvin_dino_gripper_training.lmdb', readonly=True, lock=False, readahead=False, max_readers=32)
-        
-    # def __getstate__(self):
-    #     state = self.__dict__.copy()
-    #     # 不传递 env 到子进程
-    #     state['dino_static_env'] = None
-    #     state['dino_gripper_env'] = None
-    #     return state
-
-    # def __setstate__(self, state):
-    #     self.__dict__.update(state)
-    #     self._open_envs()
 
     def ceph_lookup_naming_pattern(self):
         filenames = self.client.list(self.abs_datasets_dir)
@@ -1059,19 +1052,24 @@ class DiskCalvinDataset(BaseCalvinDataset):
         keys = list(chain(*self.observation_space.values()))
         keys.remove("language")
         keys.append("scene_obs")
-        if self.load_dino_features:
+        if self.load_dino_features and self.data_merge:
             keys.append("dino_static")
             keys.append("dino_gripper")
-        if self.load_sam_features:
+        if self.load_sam_features and self.data_merge:
             keys.append("sam_static")
             keys.append("sam_gripper")
-        episodes = [
-            self.load_file(self._get_episode_name(file_idx))
-            for file_idx in range(start_idx, end_idx)
-        ]
-        # episode_names = [self._get_episode_name(file_idx) for file_idx in range(start_idx, end_idx)]
-        # with ThreadPoolExecutor(max_workers=16) as executor:
-        #     episodes = list(executor.map(self.load_file, episode_names))
+        if self.load_track_labels and self.data_merge:
+            keys.append("traj_static")
+            keys.append("traj_gripper")
+            keys.append("visibility_static")
+            keys.append("visibility_gripper")
+        # episodes = [
+        #     self.load_file(self._get_episode_name(file_idx))
+        #     for file_idx in range(start_idx, end_idx)
+        # ]
+        episode_names = [self._get_episode_name(file_idx) for file_idx in range(start_idx, end_idx)]
+        with ThreadPoolExecutor(max_workers=16) as executor:
+            episodes = list(executor.map(self.load_file, episode_names))
 
         episode = {key: np.stack([ep[key] for ep in episodes]) for key in keys}
         if self.with_lang:
@@ -1082,140 +1080,87 @@ class DiskCalvinDataset(BaseCalvinDataset):
                 episode["language"] = enrich_lang
 
         # lhs: dino & sam features
-        # start_time = time.time()
         if self.load_dino_features:
-            # assert self.dino_features_path is not None
-            # if self.cache_static is None:
-            #     ################### vanilla #######################
-            #     dino_feats_static = []
-            #     dino_feats_gripper = []
-            #     for file_idx in range(start_idx, end_idx):
-            #         feat_static = (torch.load(os.path.join(self.dino_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #         dino_feats_static.append(feat_static)
-            #         feat_gripper = (torch.load(os.path.join(self.dino_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #         dino_feats_gripper.append(feat_gripper)   
-            #     self.cache_gripper = dino_feats_gripper
-            #     episode['dino_feats_static'] = np.stack(dino_feats_static)
-            #     self.cache_static = episode['dino_feats_static']
-            #     episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
-            #     self.cache_gripper =  episode['dino_feats_gripper']
-            # else:
-            #     episode['dino_feats_static'] = self.cache_static 
-            #     episode['dino_feats_gripper'] = self.cache_gripper 
+            if self.data_merge:
+                ################### from episode if merge #######################
+                episode['dino_feats_static'] = episode['dino_static']
+                episode['dino_feats_gripper'] = episode['dino_gripper']
+                episode.pop('dino_static', None)
+                episode.pop('dino_gripper', None)
+            else:
+                assert self.dino_features_path is not None
+                ################## multithread #######################
+                _func = partial(self._load_dino_feat, img_key='rgb_static')
+                with ThreadPoolExecutor(max_workers=16) as executor:
+                    dino_feats_static = list(executor.map(_func, list(range(start_idx, end_idx))))
 
-            ################## multithread #######################
-#             _func = partial(self._load_dino_feat, img_key='rgb_static')
-#             with ThreadPoolExecutor(max_workers=16) as executor:
-#                 dino_feats_static = list(executor.map(_func, list(range(start_idx, end_idx))))
-
-#             _func = partial(self._load_dino_feat, img_key='rgb_gripper')
-#             with ThreadPoolExecutor(max_workers=16) as executor:
-#                 dino_feats_gripper = list(executor.map(_func, list(range(start_idx, end_idx))))
-#             episode['dino_feats_static'] = np.stack(dino_feats_static)
-#             episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
-
-            ################## npz #######################
-#             for file_idx in range(start_idx, end_idx):
-#                 feat = (np.load(os.path.join(self.dino_features_path, 'training' if not self.validation else 'validation', f'{file_idx}.npz')))
-#                 dino_feats_static.append(feat['static'])
-#                 dino_feats_gripper.append(feat['gripper'])   
-
-#             ### zwy ## 
-#             _get_dino_name = lambda file_idx: Path(os.path.join(self.dino_features_path, 'training/training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-#             dino_labels = [self.load_file(_get_dino_name(file_idx)) for file_idx in range(start_idx, end_idx)]     
-#             try:
-#                 dino_feats_static = [ep['static'] for ep in dino_labels]
-#                 dino_feats_gripper =  [ep['gripper'] for ep in dino_labels]
-#             except:
-#                 print('static is not a file in the archive', f'start_idx.{start_idx}', f'end_idx.{end_idx}')
-            ################### lmdb #######################
-            # with self.dino_static_env.begin() as txn:
-            #     for file_idx in range(start_idx, end_idx):
-            #         raw = txn.get(f'{file_idx}'.encode())
-            #         data = pickle.loads(raw)
-            #         dino_feats_static.append(data.to(torch.float32).numpy())
-            # with self.dino_gripper_env.begin() as txn:
-            #     for file_idx in range(start_idx, end_idx):
-            #         raw = txn.get(f'{file_idx}'.encode())
-            #         data = pickle.loads(raw)
-            #         dino_feats_gripper.append(data.to(torch.float32).numpy())
-
-            ################### from episode #######################
-            episode['dino_feats_static'] = episode['dino_static']
-            episode['dino_feats_gripper'] = episode['dino_gripper']
-            episode.pop('dino_static', None)
-            episode.pop('dino_gripper', None)
-
-
-        # if time.time()-start_time > 0.3:
-            # print("dino_time", time.time()-start_time)
-        # start_time = time.time()
+                _func = partial(self._load_dino_feat, img_key='rgb_gripper')
+                with ThreadPoolExecutor(max_workers=16) as executor:
+                    dino_feats_gripper = list(executor.map(_func, list(range(start_idx, end_idx))))
+                episode['dino_feats_static'] = np.stack(dino_feats_static)
+                episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
+                ################### vanilla #######################
+                # dino_feats_static = []
+                # dino_feats_gripper = []
+                # for file_idx in range(start_idx, end_idx):
+                #     feat_static = (torch.load(os.path.join(self.dino_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                #     dino_feats_static.append(feat_static)
+                #     feat_gripper = (torch.load(os.path.join(self.dino_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                #     dino_feats_gripper.append(feat_gripper)   
+                # episode['dino_feats_static'] = np.stack(dino_feats_static)
+                # self.cache_static = episode['dino_feats_static']
+                # episode['dino_feats_gripper'] = np.stack(dino_feats_gripper)
+                
         if self.load_sam_features:
-            # sam_feats_static = []
-            # sam_feats_gripper = []
-            # assert self.sam_features_path is not None
-            ################### vanilla #######################
-            # for file_idx in range(start_idx, end_idx):
-            #     feat_static = (torch.load(os.path.join(self.sam_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #     sam_feats_static.append(feat_static)
-            #     feat_gripper = (torch.load(os.path.join(self.sam_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
-            #     sam_feats_gripper.append(feat_gripper)
+            if self.data_merge:
+                episode['sam_feats_static'] = episode['sam_static'].transpose(0, 2, 1)
+                episode['sam_feats_gripper'] = episode['sam_gripper'].transpose(0, 2, 1)
+                episode.pop('sam_static', None)
+                episode.pop('sam_gripper', None)
+            else:
+                assert self.sam_features_path is not None    
+                ################## multithread #######################
+                _func = partial(self._load_sam_feat, img_key='rgb_static')
+                _file_indices = list(range(start_idx, end_idx))
+                with ThreadPoolExecutor(max_workers=16) as executor:
+                    sam_feats_static = list(executor.map(_func, _file_indices))
 
-            ################## multithread #######################
-#             _func = partial(self._load_sam_feat, img_key='rgb_static')
-#             _file_indices = list(range(start_idx, end_idx))
-#             with ThreadPoolExecutor(max_workers=16) as executor:
-#                 sam_feats_static = list(executor.map(_func, _file_indices))
+                _func = partial(self._load_sam_feat, img_key='rgb_gripper')
+                with ThreadPoolExecutor(max_workers=16) as executor:
+                    sam_feats_gripper = list(executor.map(_func, _file_indices))
+                episode['sam_feats_static'] = np.stack(sam_feats_static).transpose(0, 2, 1)
+                episode['sam_feats_gripper'] = np.stack(sam_feats_gripper).transpose(0, 2, 1)
+                ################### vanilla #######################
+                # sam_feats_static = []
+                # sam_feats_gripper = []
+                # for file_idx in range(start_idx, end_idx):
+                #     feat_static = (torch.load(os.path.join(self.sam_features_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                #     sam_feats_static.append(feat_static)
+                #     feat_gripper = (torch.load(os.path.join(self.sam_features_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}.pt')).to(torch.float32)).numpy()
+                #     sam_feats_gripper.append(feat_gripper)
 
-#             _func = partial(self._load_sam_feat, img_key='rgb_gripper')
-#             with ThreadPoolExecutor(max_workers=16) as executor:
-#                 sam_feats_gripper = list(executor.map(_func, _file_indices))
-            # episode['sam_feats_static'] = np.stack(sam_feats_static).transpose(0, 2, 1)
-            # episode['sam_feats_gripper'] = np.stack(sam_feats_gripper).transpose(0, 2, 1)
-
-            ################### from episode #######################
-
-
-            episode['sam_feats_static'] = episode['sam_static'].transpose(0, 2, 1)
-            episode['sam_feats_gripper'] = episode['sam_gripper'].transpose(0, 2, 1)
-            episode.pop('sam_static', None)
-            episode.pop('sam_gripper', None)
-
-        # lhs: cotracker label
-        # if self.load_track_labels:
-        #     # rgb static
-        #     _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-        #     track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
-        #     # track_labels = [self._safe_load_npz_key(
-        #     track_keys = ['tracks', 'visibility']           
-        #     tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
-            
-        #     # rgb gripper
-        #     _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
-        #     track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
-        #     track_keys = ['tracks', 'visibility']
-        #     _tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
-        #     tracks_gripper = {}
-        #     for k, v in _tracks.items():
-        #         tracks_gripper[k+"_gripper"] = v
-
-        #     episode = {**episode, **tracks, **tracks_gripper}
-        # return episode
+               
+        if self.load_track_labels:
+            if self.data_merge:
+                pass
+            else:
+                _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_static', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
+                track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
+                # track_labels = [self._safe_load_npz_key(
+                track_keys = ['tracks', 'visibility']           
+                tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
+                _get_track_name = lambda file_idx: Path(os.path.join(self.track_label_path, 'rgb_gripper', 'training' if not self.validation else 'validation', f'{file_idx}{self.naming_pattern[1]}'))
+                track_labels = [self.load_file(_get_track_name(file_idx)) for file_idx in range(start_idx, end_idx)]
+                track_keys = ['tracks', 'visibility']
+                _tracks = {key: np.stack([ep[key] for ep in track_labels]) for key in track_keys}
+                tracks_gripper = {}
+                for k, v in _tracks.items():
+                    tracks_gripper[k+"_gripper"] = v
+                episode = {**episode, **tracks, **tracks_gripper}
+        return episode
 
 
 
-    def _safe_load_npz_key(self, path, key, retries=3, sleep=0.05):
-        last = None
-        for _ in range(retries):
-            try:
-                with np.load(path) as z:      # 关键：即开即读即关
-                    return z[key]
-            except (zipfile.BadZipFile, zlib.error, OSError, ValueError) as e:
-                last = e
-                time.sleep(sleep)
-        raise RuntimeError(f"[CORRUPT] path={path}, key={key}, err={last}")
-
-    
     
     def _build_file_indices_lang(
         self, # abs_datasets_dir: Path
@@ -1501,7 +1446,8 @@ def get_calvin_dataset(args, image_processor, tokenizer, epoch=0, floor=False, e
         load_dino_features=args.load_dino_features,
         dino_features_path=args.dino_features_path,
         load_sam_features=args.load_sam_features,
-        sam_features_path=args.sam_features_path
+        sam_features_path=args.sam_features_path,
+        merge_data = args.merge_data
     )
     round_fn = math.floor if floor else math.ceil
     num_samples = len(calvin_dataset)
@@ -2298,17 +2244,25 @@ class BaseLiberoDataset(Dataset):
         window_size: int = 0,
     ) -> Dict[str, Dict[str, torch.Tensor]]:
         seq_track_label_dict = {}
-        tracks = episode['tracks'] # [Nframe, Npoints, 2]
-        visibility = episode['visibility'] # [Nframe, Npoints]
+        if episode["traj_static"] is not None:
+            tracks = episode['traj_static'] # [Nframe, Npoints, 2]
+            visibility = episode['visibility_static'] # [Nframe, Npoints]
+        else:
+            tracks = episode['tracks'] # [Nframe, Npoints, 2]
+            visibility = episode['visibility'] # [Nframe, Npoints] 
         if window_size == 0 and seq_idx == 0:
             tracks = torch.from_numpy(tracks)
             visibility = torch.from_numpy(visibility)
         else:
             tracks = torch.from_numpy(tracks[seq_idx : seq_idx + window_size])
             visibility = torch.from_numpy(visibility[seq_idx : seq_idx + window_size])
-
-        tracks_gripper = episode['tracks_gripper'] # [Nframe, Npoints, 2]
-        visibility_gripper = episode['visibility_gripper'] # [Nframe, Npoints]
+        if episode['traj_gripper'] is not None:
+            tracks_gripper = episode['traj_gripper'] # [Nframe, Npoints, 2]
+            visibility_gripper = episode['visibility_gripper'] # [Nframe, Npoints]
+        else:
+            tracks = episode['tracks_gripper'] # [Nframe, Npoints, 2]
+            visibility = episode['visibility_gripper'] # [Nframe, Npoints] 
+            
         if window_size == 0 and seq_idx == 0:
             tracks_gripper = torch.from_numpy(tracks_gripper)
             visibility_gripper = torch.from_numpy(visibility_gripper)
@@ -2593,7 +2547,6 @@ class BaseLiberoDataset(Dataset):
         #     episode["dino_feats_gripper"] = dino_data[start_id+seq_length//2:end_id+seq_length//2].to(torch.float32).numpy()
         # if self.load_sam_features:
         #     seq_length = sam_data.shape[0]
-        #     # lhs: 注意，存的时候是把[B,C,H,W]弄成了[B,C,HW]存的，所以token维度在后面，这里保持和dino feature一致
         #     episode["sam_feats_static"] = sam_data[start_id:end_id].to(torch.float32).numpy().transpose(0, 2, 1)
         #     episode["sam_feats_gripper"] = sam_data[start_id+seq_length//2:end_id+seq_length//2].to(torch.float32).numpy().transpose(0, 2, 1)
         # if self.load_track_labels:
