@@ -501,7 +501,7 @@ class DreamVLA(nn.Module):
             self.siglip_featurizer: VisionTransformer = timm.create_model(
                 self.siglip_timm_path_or_url, pretrained=True, num_classes=0, img_size=224
             )
-            
+            self.siglip_featurizer.eval()
             self.dino_featurizer.forward = unpack_tuple(
                 partial(self.dino_featurizer.get_intermediate_layers, n={len(self.dino_featurizer.blocks) - 2})
             )
@@ -672,6 +672,7 @@ class DreamVLA(nn.Module):
             if not self.use_dinosiglip:
                 image_primary_feature, _, _ = self.vision_encoder.forward_encoder(image_primary.flatten(0, 1), mask_ratio=0.0)
                 image_wrist_feature, _, _ = self.vision_encoder.forward_encoder(image_wrist.flatten(0, 1), mask_ratio=0.0)
+                import pdb; pdb.set_trace()
             else:
                 # import pdb; pdb.set_trace()
                 dino_primary_feature = self.dino_featurizer(image_primary.flatten(0, 1), return_prefix_tokens=True)
@@ -693,7 +694,6 @@ class DreamVLA(nn.Module):
                 
                 siglip_primary_features = self.siglip_featurizer(image_wrist.flatten(0, 1))
                 siglip_wrist_patches = siglip_primary_features
-                
                 
                 image_wrist_feature = torch.cat([dino_wrist_patches, siglip_wrist_patches], dim=2)
                 image_wrist_cls_token = dino_wrist_cls_token
