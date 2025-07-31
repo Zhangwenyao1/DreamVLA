@@ -40,17 +40,16 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10215 train
     --obs_pred \
     --depth_pred \
     --use_dit_head \
+    --track_label_patch_size 8 \
+    --load_track_labels \
     --loss_image \
     --loss_action \
     --loss_depth \
     --loss_sam_feat \
     --sam_feat_pred \
     --load_sam_features \
-    --sam_feat_path "your_sam_feature_data_path" \
-    --track_label_patch_size 8 \
-    --load_track_labels \
-    --track_label_path "your_trajectory_data_path" \
     --flow_as_mask \
+    --merge_data \
     --attn_implementation "sdpa" \
     --reset_obs_token \
     --reset_action_decoder \
