@@ -46,10 +46,10 @@ torchrun --nnodes=${node} --nproc_per_node=${node_num} --master_port=10215 train
     --loss_action \
     --loss_depth \
     --loss_sam_feat \
-    --load_dino_features \
     --sam_feat_pred \
     --load_sam_features \
     --flow_as_mask \
+    --merge_data \
     --attn_implementation "sdpa" \
     --reset_obs_token \
     --reset_action_decoder \
