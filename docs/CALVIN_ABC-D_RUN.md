@@ -45,7 +45,7 @@ torchrun --nproc_per_node=8 dino_extractor.py
 ```
 If you want to finetune our model, ```python dino_extractor.py``` is must to run.
 
-### Optical
+### Optional
 
 To reduce I/O overhead, you can merge all processed data together with the raw CALVIN dataset into a single package that contains RGB, depth, and semantic‐label files.
 If you choose this option, remember to add the flag --merge_data in both finetune.sh and scratch.sh (see scripts/CALVIN_ABC_D/).finetune_merge_data.sh```
