@@ -48,10 +48,10 @@ If you want to finetune our model, ```python dino_extractor.py``` is must to run
 ### Optional
 
 To reduce I/O overhead, you can merge all processed data together with the raw CALVIN dataset into a single package that contains RGB, depth, and semantic‐label files.
-If you choose this option, remember to add the flag --merge_data in both finetune.sh and scratch.sh (see scripts/CALVIN_ABC_D/).finetune_merge_data.sh```
+If you choose this option, remember to add the flag --merge_data in both finetune.sh and scratch.sh (see scripts/CALVIN_ABC_D/.finetune_merge_data.sh)```
 
 ```
-python ./data_process/merge_sam_dino.py # merge sam and dino feature into new dataset
+python ./data_process/merge_sam_dino.py # merge sam and dino features into a new dataset
 python ./data_process/merge_track.py # merge optical flow into new dataset
 ```
 
